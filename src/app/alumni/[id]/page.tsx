@@ -1,195 +1,181 @@
 'use client'
-// src/app/alumni/[id]/page.tsx
 import { useAlumniById } from '@/hooks/useAlumni'
 import { formatWhatsApp, formatInstagram, getInitials } from '@/lib/utils'
 import Image from 'next/image'
 import Link from 'next/link'
-import { use } from 'react'
-import {
-  MapPin, Briefcase, Building2, Phone, Mail,
-  Instagram, Linkedin, ArrowLeft, ExternalLink
-} from 'lucide-react'
+import Navbar from '@/components/public/Navbar'
+import { MapPin, Briefcase, Building2, Mail, Instagram, Linkedin, ArrowLeft, ShoppingBag, MessageCircle, Globe, Tag, GraduationCap, Gift } from 'lucide-react'
 
 export default function AlumniDetailPage({ params }: { params: { id: string } }) {
   const { data: alumni, isLoading } = useAlumniById(params.id)
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-pulse text-gray-300">Memuat profil...</div>
+  if (isLoading) return (
+    <div className="min-h-screen bg-gray-50">
+      <Navbar />
+      <div className="pt-28 max-w-3xl mx-auto px-4">
+        <div className="skeleton rounded-3xl h-64 mb-4" />
+        <div className="skeleton rounded-2xl h-40" />
       </div>
-    )
-  }
+    </div>
+  )
 
-  if (!alumni) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+  if (!alumni) return (
+    <div className="min-h-screen bg-gray-50">
+      <Navbar />
+      <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <p className="text-5xl mb-4">😕</p>
-          <p className="text-gray-500">Alumni tidak ditemukan</p>
-          <Link href="/alumni" className="text-blue-600 hover:underline mt-2 inline-block">
-            ← Kembali ke direktori
-          </Link>
+          <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <GraduationCap className="w-8 h-8 text-gray-300" />
+          </div>
+          <p className="text-gray-500 font-medium">Alumni tidak ditemukan</p>
+          <Link href="/alumni" className="text-blue-600 hover:underline mt-2 inline-block text-sm">← Kembali ke direktori</Link>
         </div>
       </div>
-    )
-  }
+    </div>
+  )
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white border-b border-gray-100 sticky top-0 z-40">
-        <div className="max-w-4xl mx-auto px-4 h-16 flex items-center gap-4">
-          <Link href="/alumni" className="text-gray-400 hover:text-gray-600 transition">
-            <ArrowLeft className="w-5 h-5" />
-          </Link>
-          <a href="/" className="text-xl font-bold text-blue-600">AlumniNet</a>
-        </div>
-      </nav>
+      <Navbar />
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 pt-24 pb-12">
+        <Link href="/alumni" className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-gray-600 transition mb-5">
+          <ArrowLeft className="w-4 h-4" /> Kembali ke direktori
+        </Link>
 
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        {/* Profile Header */}
-        <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-6">
-          <div className="flex flex-col sm:flex-row gap-6">
-            {/* Avatar */}
-            <div className="w-24 h-24 rounded-2xl overflow-hidden bg-blue-100 flex items-center justify-center flex-shrink-0">
-              {alumni.foto_url ? (
-                <Image
-                  src={alumni.foto_url}
-                  alt={alumni.nama_lengkap}
-                  width={96}
-                  height={96}
-                  className="object-cover w-full h-full"
-                />
-              ) : (
-                <span className="text-blue-600 font-bold text-2xl">
-                  {getInitials(alumni.nama_lengkap)}
+        {/* Profile Card */}
+        <div className="bg-white rounded-3xl border border-gray-100 overflow-hidden mb-4 shadow-sm">
+          <div className="h-24 bg-gradient-to-r from-blue-600 to-blue-800 relative">
+            <div className="absolute inset-0 opacity-10"
+              style={{backgroundImage: 'radial-gradient(circle at 20% 50%, white 1px, transparent 1px)', backgroundSize: '24px 24px'}} />
+          </div>
+          <div className="px-6 pb-6">
+            <div className="flex items-end gap-4 -mt-10 mb-4">
+              <div className="w-20 h-20 rounded-2xl overflow-hidden bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center border-4 border-white shadow-md flex-shrink-0">
+                {alumni.foto_url ? (
+                  <Image src={alumni.foto_url} alt={alumni.nama_lengkap} width={80} height={80} className="object-cover w-full h-full" />
+                ) : (
+                  <span className="text-blue-700 font-bold text-xl">{getInitials(alumni.nama_lengkap)}</span>
+                )}
+              </div>
+              {alumni.is_active && (
+                <div className="pb-1">
+                  <span className="inline-flex items-center gap-1 text-xs bg-green-50 text-green-700 border border-green-100 px-2.5 py-1 rounded-full font-medium">
+                    <span className="w-1.5 h-1.5 bg-green-500 rounded-full" /> Aktif
+                  </span>
+                </div>
+              )}
+            </div>
+
+            <h1 className="text-2xl font-bold text-gray-900 mb-1">{alumni.nama_lengkap}</h1>
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-gray-500 mb-4">
+              {alumni.angkatan && (
+                <span className="flex items-center gap-1">
+                  <GraduationCap className="w-3.5 h-3.5 text-gray-300" /> Angkatan {alumni.angkatan}
                 </span>
               )}
+              {alumni.jurusan && <><span className="text-gray-300">·</span><span>{alumni.jurusan}</span></>}
             </div>
 
-            {/* Info */}
-            <div className="flex-1">
-              <h1 className="text-2xl font-bold text-gray-900">{alumni.nama_lengkap}</h1>
-              {alumni.angkatan && (
-                <p className="text-gray-400 text-sm mt-0.5">
-                  Angkatan {alumni.angkatan}
-                  {alumni.jurusan && ` · ${alumni.jurusan}`}
-                </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-5">
+              {alumni.master_profesi && (
+                <div className="flex items-center gap-2.5 bg-gray-50 rounded-xl px-3 py-2.5">
+                  <Briefcase className="w-4 h-4 text-gray-300 flex-shrink-0" />
+                  <div><p className="text-xs text-gray-400">Profesi</p><p className="text-sm font-medium text-gray-700">{(alumni.master_profesi as any).nama}</p></div>
+                </div>
               )}
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-4">
-                {alumni.master_profesi && (
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <Briefcase className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                    {alumni.jabatan || alumni.master_profesi.nama}
-                  </div>
-                )}
-                {alumni.perusahaan && (
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <Building2 className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                    {alumni.perusahaan}
-                  </div>
-                )}
-                {alumni.master_kota && (
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <MapPin className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                    {alumni.master_kota.nama}
-                  </div>
-                )}
-              </div>
-
-              {/* Kontak */}
-              <div className="flex flex-wrap gap-2 mt-4">
-                {alumni.whatsapp && (
-                  <a
-                    href={formatWhatsApp(alumni.whatsapp)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1.5 text-sm bg-green-50 text-green-700 border border-green-200 px-3 py-1.5 rounded-full hover:bg-green-100 transition"
-                  >
-                    <Phone className="w-3 h-3" /> WhatsApp
-                  </a>
-                )}
-                {alumni.email && (
-                  <a
-                    href={`mailto:${alumni.email}`}
-                    className="flex items-center gap-1.5 text-sm bg-blue-50 text-blue-700 border border-blue-200 px-3 py-1.5 rounded-full hover:bg-blue-100 transition"
-                  >
-                    <Mail className="w-3 h-3" /> Email
-                  </a>
-                )}
-                {alumni.instagram && (
-                  <a
-                    href={formatInstagram(alumni.instagram)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1.5 text-sm bg-pink-50 text-pink-700 border border-pink-200 px-3 py-1.5 rounded-full hover:bg-pink-100 transition"
-                  >
-                    <Instagram className="w-3 h-3" /> Instagram
-                  </a>
-                )}
-                {alumni.linkedin && (
-                  <a
-                    href={alumni.linkedin}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1.5 text-sm bg-blue-50 text-blue-700 border border-blue-200 px-3 py-1.5 rounded-full hover:bg-blue-100 transition"
-                  >
-                    <Linkedin className="w-3 h-3" /> LinkedIn
-                  </a>
-                )}
-              </div>
+              {alumni.jabatan && (
+                <div className="flex items-center gap-2.5 bg-gray-50 rounded-xl px-3 py-2.5">
+                  <Building2 className="w-4 h-4 text-gray-300 flex-shrink-0" />
+                  <div><p className="text-xs text-gray-400">Jabatan</p><p className="text-sm font-medium text-gray-700">{alumni.jabatan}</p></div>
+                </div>
+              )}
+              {alumni.perusahaan && (
+                <div className="flex items-center gap-2.5 bg-gray-50 rounded-xl px-3 py-2.5">
+                  <Building2 className="w-4 h-4 text-gray-300 flex-shrink-0" />
+                  <div><p className="text-xs text-gray-400">Perusahaan</p><p className="text-sm font-medium text-gray-700">{alumni.perusahaan}</p></div>
+                </div>
+              )}
+              {alumni.master_kota && (
+                <div className="flex items-center gap-2.5 bg-gray-50 rounded-xl px-3 py-2.5">
+                  <MapPin className="w-4 h-4 text-gray-300 flex-shrink-0" />
+                  <div><p className="text-xs text-gray-400">Domisili</p><p className="text-sm font-medium text-gray-700">{(alumni.master_kota as any).nama}</p></div>
+                </div>
+              )}
             </div>
+
+            <div className="flex flex-wrap gap-2">
+              {alumni.whatsapp && (
+                <a href={formatWhatsApp(alumni.whatsapp)} target="_blank" rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 text-sm bg-green-50 text-green-700 border border-green-100 px-4 py-2 rounded-xl hover:bg-green-100 transition font-medium">
+                  <MessageCircle className="w-4 h-4" /> WhatsApp
+                </a>
+              )}
+              {alumni.email && (
+                <a href={`mailto:${alumni.email}`}
+                  className="flex items-center gap-1.5 text-sm bg-blue-50 text-blue-700 border border-blue-100 px-4 py-2 rounded-xl hover:bg-blue-100 transition font-medium">
+                  <Mail className="w-4 h-4" /> Email
+                </a>
+              )}
+              {alumni.instagram && (
+                <a href={formatInstagram(alumni.instagram)} target="_blank" rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 text-sm bg-pink-50 text-pink-700 border border-pink-100 px-4 py-2 rounded-xl hover:bg-pink-100 transition font-medium">
+                  <Instagram className="w-4 h-4" /> Instagram
+                </a>
+              )}
+              {alumni.linkedin && (
+                <a href={alumni.linkedin} target="_blank" rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 text-sm bg-blue-50 text-blue-700 border border-blue-100 px-4 py-2 rounded-xl hover:bg-blue-100 transition font-medium">
+                  <Linkedin className="w-4 h-4" /> LinkedIn
+                </a>
+              )}
+            </div>
+
+            {alumni.bio && (
+              <div className="mt-5 pt-5 border-t border-gray-50">
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Tentang</p>
+                <p className="text-sm text-gray-600 leading-relaxed">{alumni.bio}</p>
+              </div>
+            )}
           </div>
-
-          {alumni.bio && (
-            <div className="mt-5 pt-5 border-t border-gray-100">
-              <h3 className="text-sm font-semibold text-gray-500 mb-2">Tentang</h3>
-              <p className="text-gray-700 text-sm leading-relaxed">{alumni.bio}</p>
-            </div>
-          )}
         </div>
 
-        {/* UMKM Section */}
+        {/* UMKM */}
         {alumni.umkm && alumni.umkm.length > 0 && (
           <div>
-            <h2 className="text-lg font-bold text-gray-900 mb-4">🏪 Usaha UMKM</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <h2 className="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
+              <ShoppingBag className="w-5 h-5 text-orange-500" /> Usaha UMKM
+            </h2>
+            <div className="space-y-3">
               {alumni.umkm.map((umkm: any) => (
-                <div key={umkm.id} className="bg-white border border-gray-200 rounded-xl p-4">
+                <div key={umkm.id} className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
                   <div className="flex items-center gap-3 mb-3">
                     {umkm.logo_url ? (
-                      <Image
-                        src={umkm.logo_url}
-                        alt="logo"
-                        width={40}
-                        height={40}
-                        className="rounded-lg object-contain border border-gray-100"
-                      />
+                      <Image src={umkm.logo_url} alt="logo" width={44} height={44} className="rounded-xl object-contain border border-gray-100" />
                     ) : (
-                      <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center text-orange-600 font-bold text-sm">
-                        {umkm.nama_usaha[0]}
+                      <div className="w-11 h-11 bg-orange-100 rounded-xl flex items-center justify-center">
+                        <ShoppingBag className="w-5 h-5 text-orange-600" />
                       </div>
                     )}
                     <div>
-                      <h3 className="font-semibold text-gray-900">{umkm.nama_usaha}</h3>
+                      <h3 className="font-bold text-gray-900">{umkm.nama_usaha}</h3>
                       {umkm.master_kategori_usaha && (
-                        <p className="text-xs text-gray-400">{umkm.master_kategori_usaha.nama}</p>
+                        <span className="inline-flex items-center gap-1 text-xs text-orange-700 bg-orange-50 border border-orange-100 px-2 py-0.5 rounded-full mt-0.5">
+                          <Tag className="w-3 h-3" /> {umkm.master_kategori_usaha.nama}
+                        </span>
                       )}
                     </div>
                   </div>
 
-                  {umkm.deskripsi && (
-                    <p className="text-sm text-gray-600 mb-3 line-clamp-2">{umkm.deskripsi}</p>
-                  )}
+                  {umkm.deskripsi && <p className="text-sm text-gray-600 mb-3 leading-relaxed">{umkm.deskripsi}</p>}
 
-                  {/* Benefits */}
                   {umkm.umkm_benefits?.length > 0 && (
                     <div className="mb-3">
-                      <p className="text-xs font-semibold text-gray-400 mb-1">Benefit untuk alumni:</p>
-                      <div className="flex flex-wrap gap-1">
+                      <p className="text-xs font-semibold text-gray-400 flex items-center gap-1 mb-1.5">
+                        <Gift className="w-3 h-3" /> Benefit untuk alumni
+                      </p>
+                      <div className="flex flex-wrap gap-1.5">
                         {umkm.umkm_benefits.map((b: any) => (
-                          <span key={b.id} className="text-xs bg-yellow-50 text-yellow-700 border border-yellow-200 px-2 py-0.5 rounded-full">
+                          <span key={b.id} className="text-xs bg-yellow-50 text-yellow-700 border border-yellow-100 px-2.5 py-1 rounded-full">
                             {b.master_benefit?.nama}
                           </span>
                         ))}
@@ -197,23 +183,30 @@ export default function AlumniDetailPage({ params }: { params: { id: string } })
                     </div>
                   )}
 
-                  {/* Links */}
-                  <div className="flex gap-2 flex-wrap">
+                  <div className="flex gap-3 flex-wrap pt-3 border-t border-gray-50">
                     {umkm.whatsapp_bisnis && (
                       <a href={formatWhatsApp(umkm.whatsapp_bisnis)} target="_blank" rel="noopener noreferrer"
-                        className="text-xs text-green-700 hover:underline">💬 WA</a>
+                        className="flex items-center gap-1.5 text-sm text-green-700 hover:text-green-800 font-medium transition">
+                        <MessageCircle className="w-4 h-4" /> WhatsApp
+                      </a>
                     )}
                     {umkm.instagram_usaha && (
                       <a href={formatInstagram(umkm.instagram_usaha)} target="_blank" rel="noopener noreferrer"
-                        className="text-xs text-pink-700 hover:underline">📸 IG</a>
+                        className="flex items-center gap-1.5 text-sm text-pink-700 hover:text-pink-800 font-medium transition">
+                        <Instagram className="w-4 h-4" /> Instagram
+                      </a>
                     )}
                     {umkm.toko_online && (
                       <a href={umkm.toko_online} target="_blank" rel="noopener noreferrer"
-                        className="text-xs text-orange-700 hover:underline">🛒 Toko</a>
+                        className="flex items-center gap-1.5 text-sm text-orange-700 hover:text-orange-800 font-medium transition">
+                        <ShoppingBag className="w-4 h-4" /> Toko Online
+                      </a>
                     )}
                     {umkm.website && (
                       <a href={umkm.website} target="_blank" rel="noopener noreferrer"
-                        className="text-xs text-blue-700 hover:underline">🌐 Website</a>
+                        className="flex items-center gap-1.5 text-sm text-blue-700 hover:text-blue-800 font-medium transition">
+                        <Globe className="w-4 h-4" /> Website
+                      </a>
                     )}
                   </div>
                 </div>
