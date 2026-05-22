@@ -1,10 +1,9 @@
 'use client'
-// src/components/admin/AdminSidebar.tsx
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import {
-  LayoutDashboard, Users, Store, Star,
+  LayoutDashboard, Users, Star,
   Database, Download, LogOut
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -24,19 +23,17 @@ export default function AdminSidebar() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
-    router.push('/admin/login')
+    router.push('/admin-login')
     router.refresh()
   }
 
   return (
     <aside className="fixed left-0 top-0 h-screen w-64 bg-white border-r border-gray-100 flex flex-col">
-      {/* Logo */}
       <div className="p-6 border-b border-gray-100">
         <h1 className="text-xl font-bold text-blue-600">AlumniNet</h1>
         <p className="text-xs text-gray-400 mt-0.5">CMS Admin</p>
       </div>
 
-      {/* Nav */}
       <nav className="flex-1 p-4 space-y-1">
         {navItems.map(item => {
           const Icon = item.icon
@@ -62,7 +59,6 @@ export default function AdminSidebar() {
         })}
       </nav>
 
-      {/* Logout */}
       <div className="p-4 border-t border-gray-100">
         <button
           onClick={handleLogout}
