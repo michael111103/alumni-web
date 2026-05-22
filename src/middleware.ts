@@ -2,6 +2,7 @@ import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl
   let supabaseResponse = NextResponse.next({ request })
 
   const supabase = createServerClient(
@@ -25,20 +26,12 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser()
 
-  if (
-    request.nextUrl.pathname.startsWith('/admin') &&
-    !request.nextUrl.pathname.startsWith('/admin/login') &&
-    !user
-  ) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/admin/login'
-    return NextResponse.redirect(url)
+  if (pathname === '/admin/login' && user) {
+    return NextResponse.redirect(new URL('/admin', request.url))
   }
 
-  if (request.nextUrl.pathname === '/admin/login' && user) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/admin'
-    return NextResponse.redirect(url)
+  if (pathname.startsWith('/admin') && pathname !== '/admin/login' && !user) {
+    return NextResponse.redirect(new URL('/admin/login', request.url))
   }
 
   return supabaseResponse
