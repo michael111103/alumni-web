@@ -1,7 +1,6 @@
-// src/components/public/AlumniCard.tsx
 import Link from 'next/link'
 import Image from 'next/image'
-import { MapPin, Briefcase, Building2 } from 'lucide-react'
+import { MapPin, Briefcase, Building2, ShoppingBag } from 'lucide-react'
 import { getInitials } from '@/lib/utils'
 import type { Alumni } from '@/types'
 
@@ -10,59 +9,46 @@ export default function AlumniCard({ alumni }: { alumni: Alumni }) {
 
   return (
     <Link href={`/alumni/${alumni.id}`}>
-      <div className="bg-white border border-gray-200 rounded-xl p-4 hover:shadow-md hover:border-blue-200 transition-all cursor-pointer h-full">
-        {/* Avatar */}
+      <div className="bg-white border border-gray-100 rounded-2xl p-4 card-hover cursor-pointer h-full flex flex-col">
         <div className="flex items-center gap-3 mb-3">
-          <div className="w-12 h-12 rounded-full overflow-hidden bg-blue-100 flex items-center justify-center flex-shrink-0">
+          <div className="w-11 h-11 rounded-xl overflow-hidden bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center flex-shrink-0 ring-2 ring-white shadow-sm">
             {alumni.foto_url ? (
-              <Image
-                src={alumni.foto_url}
-                alt={alumni.nama_lengkap}
-                width={48}
-                height={48}
-                className="object-cover w-full h-full"
-              />
+              <Image src={alumni.foto_url} alt={alumni.nama_lengkap} width={44} height={44} className="object-cover w-full h-full" />
             ) : (
-              <span className="text-blue-600 font-bold text-sm">
-                {getInitials(alumni.nama_lengkap)}
-              </span>
+              <span className="text-blue-700 font-bold text-sm">{getInitials(alumni.nama_lengkap)}</span>
             )}
           </div>
           <div className="min-w-0">
-            <h3 className="font-semibold text-gray-900 text-sm truncate">{alumni.nama_lengkap}</h3>
-            {alumni.angkatan && (
-              <p className="text-xs text-gray-400">Angkatan {alumni.angkatan}</p>
-            )}
+            <h3 className="font-semibold text-gray-900 text-sm truncate leading-tight">{alumni.nama_lengkap}</h3>
+            {alumni.angkatan && <span className="text-xs text-gray-400">Angkatan {alumni.angkatan}</span>}
           </div>
         </div>
 
-        {/* Info */}
-        <div className="space-y-1.5">
+        <div className="space-y-1.5 flex-1">
           {alumni.master_profesi && (
             <div className="flex items-center gap-1.5 text-xs text-gray-500">
-              <Briefcase className="w-3 h-3 flex-shrink-0" />
-              <span className="truncate">{alumni.master_profesi.nama}</span>
+              <Briefcase className="w-3 h-3 text-gray-300 flex-shrink-0" />
+              <span className="truncate">{(alumni.master_profesi as any).nama}</span>
             </div>
           )}
           {alumni.perusahaan && (
             <div className="flex items-center gap-1.5 text-xs text-gray-500">
-              <Building2 className="w-3 h-3 flex-shrink-0" />
+              <Building2 className="w-3 h-3 text-gray-300 flex-shrink-0" />
               <span className="truncate">{alumni.perusahaan}</span>
             </div>
           )}
           {alumni.master_kota && (
             <div className="flex items-center gap-1.5 text-xs text-gray-500">
-              <MapPin className="w-3 h-3 flex-shrink-0" />
-              <span className="truncate">{alumni.master_kota.nama}</span>
+              <MapPin className="w-3 h-3 text-gray-300 flex-shrink-0" />
+              <span className="truncate">{(alumni.master_kota as any).nama}</span>
             </div>
           )}
         </div>
 
-        {/* UMKM Badge */}
         {hasUMKM && (
-          <div className="mt-3 pt-3 border-t border-gray-100">
-            <span className="text-xs bg-orange-50 text-orange-600 border border-orange-200 px-2 py-0.5 rounded-full">
-              🏪 Punya UMKM
+          <div className="mt-3 pt-3 border-t border-gray-50">
+            <span className="inline-flex items-center gap-1.5 text-xs bg-orange-50 text-orange-600 border border-orange-100 px-2.5 py-1 rounded-full font-medium">
+              <ShoppingBag className="w-3 h-3" /> Punya UMKM
             </span>
           </div>
         )}
