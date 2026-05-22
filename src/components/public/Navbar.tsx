@@ -1,7 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Users, Store, Menu, X } from 'lucide-react'
+import { Users, Store, Menu, X, UserPlus } from 'lucide-react'
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
 
@@ -12,6 +12,7 @@ export default function Navbar() {
   const links = [
     { href: '/alumni', label: 'Direktori Alumni', icon: Users },
     { href: '/umkm', label: 'UMKM Alumni', icon: Store },
+    { href: '/daftar', label: 'Daftar Alumni', icon: UserPlus },
   ]
 
   return (
