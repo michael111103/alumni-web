@@ -5,7 +5,7 @@ export default function AlumniPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-pulse text-gray-300">Memuat...</div>
+        <div className="animate-pulse text-gray-300 text-sm">Memuat...</div>
       </div>
     }>
       <AlumniPageContent />
