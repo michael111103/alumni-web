@@ -26,17 +26,17 @@ export default function ShowcaseSection() {
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
       {showcases.map((item, idx) => (
         <div key={item.id} className={`bg-white rounded-2xl overflow-hidden border border-gray-100 card-hover animate-fade-up-delay-${Math.min(idx+1,4)}`}>
-          <div className="h-44 bg-gradient-to-br from-blue-50 to-blue-100 relative overflow-hidden">
+          <div className="h-44 bg-gradient-to-br from-red-50 to-gray-100 relative overflow-hidden">
             {item.foto_produk_urls?.[0] ? (
               <Image src={item.foto_produk_urls[0]} alt={item.nama_usaha} fill className="object-cover" />
             ) : (
               <div className="h-full flex items-center justify-center">
-                <ShoppingBag className="w-12 h-12 text-blue-200" />
+                <ShoppingBag className="w-12 h-12 text-red-200" />
               </div>
             )}
             {item.kategori_usaha && (
               <div className="absolute top-3 left-3">
-                <span className="flex items-center gap-1 bg-white/90 backdrop-blur-sm text-blue-700 text-xs font-semibold px-2.5 py-1 rounded-full shadow-sm">
+                <span className="flex items-center gap-1 bg-white/90 backdrop-blur-sm text-red-800 text-xs font-semibold px-2.5 py-1 rounded-full shadow-sm">
                   <Tag className="w-3 h-3" /> {item.kategori_usaha}
                 </span>
               </div>
@@ -48,8 +48,8 @@ export default function ShowcaseSection() {
                 <Image src={item.logo_url} alt="logo" width={40} height={40}
                   className="rounded-xl object-contain border border-gray-100 flex-shrink-0" />
               ) : (
-                <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <ShoppingBag className="w-5 h-5 text-blue-600" />
+                <div className="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <ShoppingBag className="w-5 h-5 text-red-700" />
                 </div>
               )}
               <div className="min-w-0">
@@ -78,7 +78,7 @@ export default function ShowcaseSection() {
               )}
               {item.toko_online && (
                 <a href={item.toko_online} target="_blank" rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 text-xs bg-orange-50 text-orange-700 border border-orange-100 px-3 py-1.5 rounded-xl hover:bg-orange-100 transition font-medium">
+                  className="flex items-center gap-1.5 text-xs bg-gray-100 text-gray-700 border border-gray-200 px-3 py-1.5 rounded-xl hover:bg-gray-200 transition font-medium">
                   <ShoppingBag className="w-3 h-3" /> Toko
                 </a>
               )}
