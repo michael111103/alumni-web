@@ -11,11 +11,11 @@ export default function AlumniCard({ alumni }: { alumni: Alumni }) {
     <Link href={`/alumni/${alumni.id}`}>
       <div className="bg-white border border-gray-100 rounded-2xl p-4 card-hover cursor-pointer h-full flex flex-col">
         <div className="flex items-center gap-3 mb-3">
-          <div className="w-11 h-11 rounded-xl overflow-hidden bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center flex-shrink-0 ring-2 ring-white shadow-sm">
+          <div className="w-11 h-11 rounded-xl overflow-hidden bg-gradient-to-br from-red-100 to-gray-200 flex items-center justify-center flex-shrink-0 ring-2 ring-white shadow-sm">
             {alumni.foto_url ? (
               <Image src={alumni.foto_url} alt={alumni.nama_lengkap} width={44} height={44} className="object-cover w-full h-full" />
             ) : (
-              <span className="text-blue-700 font-bold text-sm">{getInitials(alumni.nama_lengkap)}</span>
+              <span className="text-red-800 font-bold text-sm">{getInitials(alumni.nama_lengkap)}</span>
             )}
           </div>
           <div className="min-w-0">
@@ -47,7 +47,7 @@ export default function AlumniCard({ alumni }: { alumni: Alumni }) {
 
         {hasUMKM && (
           <div className="mt-3 pt-3 border-t border-gray-50">
-            <span className="inline-flex items-center gap-1.5 text-xs bg-orange-50 text-orange-600 border border-orange-100 px-2.5 py-1 rounded-full font-medium">
+            <span className="inline-flex items-center gap-1.5 text-xs bg-red-50 text-red-700 border border-red-100 px-2.5 py-1 rounded-full font-medium">
               <ShoppingBag className="w-3 h-3" /> Punya UMKM
             </span>
           </div>
