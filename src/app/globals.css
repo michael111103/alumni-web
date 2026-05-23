@@ -3,9 +3,9 @@
 @tailwind utilities;
 
 :root {
-  --primary: #1a56db;
-  --primary-dark: #1345b7;
-  --primary-light: #e8f0fe;
+  --primary: #c0152a;
+  --primary-dark: #a01020;
+  --primary-light: #fde8ea;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -53,7 +53,7 @@ h1, h2, h3, h4 {
 }
 .card-hover:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.10);
 }
 
 .line-clamp-2 {
@@ -71,7 +71,7 @@ h1, h2, h3, h4 {
 }
 
 .glass {
-  background: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.88);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
