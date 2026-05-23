@@ -3,8 +3,8 @@ import './globals.css'
 import { Providers } from '@/components/providers'
 
 export const metadata: Metadata = {
-  title: 'AlumniNet — Direktori & UMKM Alumni',
-  description: 'Platform digital untuk menghimpun database alumni dan menampilkan usaha UMKM alumni.',
+  title: 'TarkiPages — Direktori & UMKM Alumni',
+  description: 'Platform digital untuk menghimpun database alumni dan menampilkan usaha UMKM alumni secara berkala.',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
