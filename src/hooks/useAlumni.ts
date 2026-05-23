@@ -1,17 +1,16 @@
-// src/hooks/useAlumni.ts
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { getAlumni, getAlumniById, createAlumni, updateAlumni, deleteAlumni } from '@/lib/queries/alumni'
+import { getAlumni, getAlumniById, createAlumni, updateAlumni, deleteAlumni, deleteAlumniPermanent } from '@/lib/queries/alumni'
 import { getShowcaseAktif, getUMKM, getAllShowcase, createShowcase, updateShowcase, deleteShowcase, createUMKM, updateUMKM } from '@/lib/queries/umkm'
 import { getMasterKota, getMasterProfesi, getMasterKategoriUsaha, getMasterBenefit, getDashboardStats } from '@/lib/queries/master'
 import type { AlumniFilter, UMKMFilter } from '@/types'
 
 // ===== ALUMNI HOOKS =====
 
-export function useAlumni(filter: AlumniFilter = {}, page = 1, limit = 12) {
+export function useAlumni(filter: AlumniFilter = {}, page = 1, limit = 12, includeInactive = false) {
   return useQuery({
-    queryKey: ['alumni', filter, page, limit],
-    queryFn: () => getAlumni(filter, page, limit),
-    staleTime: 1000 * 60 * 5, // 5 menit
+    queryKey: ['alumni', filter, page, limit, includeInactive],
+    queryFn: () => getAlumni(filter, page, limit, includeInactive),
+    staleTime: 1000 * 60 * 5,
   })
 }
 
@@ -47,6 +46,14 @@ export function useDeleteAlumni() {
   })
 }
 
+export function useDeleteAlumniPermanent() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: deleteAlumniPermanent,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['alumni'] }),
+  })
+}
+
 // ===== UMKM HOOKS =====
 
 export function useUMKM(filter: UMKMFilter = {}, page = 1, limit = 12) {
@@ -61,8 +68,8 @@ export function useShowcaseAktif() {
   return useQuery({
     queryKey: ['showcase-aktif'],
     queryFn: getShowcaseAktif,
-    staleTime: 1000 * 60 * 10, // 10 menit
-    refetchInterval: 1000 * 60 * 30, // refresh tiap 30 menit
+    staleTime: 1000 * 60 * 10,
+    refetchInterval: 1000 * 60 * 30,
   })
 }
 
@@ -130,7 +137,7 @@ export function useMasterKota() {
   return useQuery({
     queryKey: ['master-kota'],
     queryFn: getMasterKota,
-    staleTime: 1000 * 60 * 60, // 1 jam
+    staleTime: 1000 * 60 * 60,
   })
 }
 
