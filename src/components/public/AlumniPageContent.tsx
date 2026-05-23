@@ -48,8 +48,8 @@ export default function AlumniPageContent() {
       <div className="bg-white border-b border-gray-100 pt-16">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
           <div className="flex items-center gap-3 mb-1">
-            <div className="w-9 h-9 bg-blue-100 rounded-xl flex items-center justify-center">
-              <Users className="w-5 h-5 text-blue-600" />
+            <div className="w-9 h-9 bg-red-100 rounded-xl flex items-center justify-center">
+              <Users className="w-5 h-5 text-red-700" />
             </div>
             <h1 className="text-2xl font-bold text-gray-900">Direktori Alumni</h1>
           </div>
@@ -65,19 +65,19 @@ export default function AlumniPageContent() {
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
             <input type="text" value={searchInput} onChange={e => setSearchInput(e.target.value)}
               placeholder="Cari nama alumni..."
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 text-sm transition" />
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 text-sm transition" />
           </div>
-          <button type="submit" className="bg-blue-600 text-white px-5 py-2.5 rounded-xl hover:bg-blue-700 transition font-medium text-sm">
+          <button type="submit" className="bg-red-700 text-white px-5 py-2.5 rounded-xl hover:bg-red-800 transition font-medium text-sm">
             Cari
           </button>
           <button type="button" onClick={() => setShowFilter(!showFilter)}
             className={`relative flex items-center gap-2 px-4 py-2.5 rounded-xl border font-medium text-sm transition ${
-              showFilter || activeFilterCount > 0 ? 'border-blue-400 text-blue-600 bg-blue-50' : 'border-gray-200 text-gray-600 bg-white hover:bg-gray-50'
+              showFilter || activeFilterCount > 0 ? 'border-red-400 text-red-700 bg-red-50' : 'border-gray-200 text-gray-600 bg-white hover:bg-gray-50'
             }`}>
             <SlidersHorizontal className="w-4 h-4" />
             <span className="hidden sm:inline">Filter</span>
             {activeFilterCount > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-blue-600 text-white text-xs rounded-full flex items-center justify-center font-bold">
+              <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-red-700 text-white text-xs rounded-full flex items-center justify-center font-bold">
                 {activeFilterCount}
               </span>
             )}
@@ -108,7 +108,7 @@ export default function AlumniPageContent() {
             <p className="font-medium text-gray-500">Alumni tidak ditemukan</p>
             <p className="text-sm text-gray-400 mt-1">Coba ubah kata kunci atau reset filter</p>
             {hasActiveFilter && (
-              <button onClick={clearFilter} className="mt-4 text-sm text-blue-600 hover:underline font-medium">Reset filter</button>
+              <button onClick={clearFilter} className="mt-4 text-sm text-red-700 hover:underline font-medium">Reset filter</button>
             )}
           </div>
         ) : (
