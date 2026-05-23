@@ -21,7 +21,7 @@ export default function FilterSidebar({ filter, onFilter, onClear }: Props) {
           <MapPin className="w-3.5 h-3.5" /> Kota / Wilayah
         </label>
         <select value={filter.kota_id || ''} onChange={e => onFilter({ kota_id: e.target.value })}
-          className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition bg-white">
+          className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition bg-white">
           <option value="">Semua Kota</option>
           {kotas?.map(k => <option key={k.id} value={k.id}>{k.nama}</option>)}
         </select>
@@ -31,7 +31,7 @@ export default function FilterSidebar({ filter, onFilter, onClear }: Props) {
           <Briefcase className="w-3.5 h-3.5" /> Profesi
         </label>
         <select value={filter.profesi_id || ''} onChange={e => onFilter({ profesi_id: e.target.value })}
-          className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition bg-white">
+          className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition bg-white">
           <option value="">Semua Profesi</option>
           {profesis?.map(p => <option key={p.id} value={p.id}>{p.nama}</option>)}
         </select>
@@ -41,7 +41,7 @@ export default function FilterSidebar({ filter, onFilter, onClear }: Props) {
           <Gift className="w-3.5 h-3.5" /> Benefit
         </label>
         <select value={filter.benefit_id || ''} onChange={e => onFilter({ benefit_id: e.target.value })}
-          className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition bg-white">
+          className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition bg-white">
           <option value="">Semua Benefit</option>
           {benefits?.map(b => <option key={b.id} value={b.id}>{b.nama}</option>)}
         </select>
