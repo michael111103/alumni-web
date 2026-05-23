@@ -628,7 +628,7 @@ function Label({ children, required }: { children: React.ReactNode; required?: b
  )
 }
 
-function Input({ icon, error, ...props }: any) {
+function Input({ icon, error, ...props }: { icon?: React.ReactNode; error?: string; [key: string]: any }) {
  return (
    <div>
      <div className="relative">
