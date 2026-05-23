@@ -32,10 +32,9 @@ export default function AdminSidebar() {
   const SidebarContent = () => (
     <>
       <div className="p-5 border-b border-gray-100 flex items-center justify-between">
-        <div>
-          <h1 className="text-lg font-bold text-blue-600">AlumniNet</h1>
-          <p className="text-xs text-gray-400">CMS Admin</p>
-        </div>
+        <span className="font-bold text-xl" style={{fontFamily: "'Plus Jakarta Sans', sans-serif"}}>
+          Tarki<span className="text-blue-600">Pages</span>
+        </span>
         <button onClick={() => setOpen(false)} className="md:hidden p-1 text-gray-400 hover:text-gray-600">
           <X className="w-5 h-5" />
         </button>
@@ -49,10 +48,7 @@ export default function AdminSidebar() {
             : pathname.startsWith(item.href)
 
           return (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={() => setOpen(false)}
+            <Link key={item.href} href={item.href} onClick={() => setOpen(false)}
               className={cn(
                 'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition',
                 isActive
@@ -68,10 +64,8 @@ export default function AdminSidebar() {
       </nav>
 
       <div className="p-3 border-t border-gray-100">
-        <button
-          onClick={handleLogout}
-          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-600 hover:bg-red-50 hover:text-red-600 w-full transition"
-        >
+        <button onClick={handleLogout}
+          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-600 hover:bg-red-50 hover:text-red-600 w-full transition">
           <LogOut className="w-4 h-4" />
           Keluar
         </button>
@@ -83,29 +77,18 @@ export default function AdminSidebar() {
     <>
       {/* Mobile top bar */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-40 bg-white border-b border-gray-100 flex items-center justify-between px-4 h-14">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 bg-blue-600 rounded-lg flex items-center justify-center">
-            <Users className="w-4 h-4 text-white" />
-          </div>
-          <span className="font-bold text-gray-900 text-base">
-            Alumni<span className="text-blue-600">Net</span>
-          </span>
-          <span className="text-xs text-gray-400">CMS</span>
-        </div>
-        <button
-          onClick={() => setOpen(true)}
-          className="p-2 rounded-xl text-gray-600 hover:bg-gray-100 transition"
-        >
+        <span className="font-bold text-lg" style={{fontFamily: "'Plus Jakarta Sans', sans-serif"}}>
+          Tarki<span className="text-blue-600">Pages</span>
+        </span>
+        <button onClick={() => setOpen(true)}
+          className="p-2 rounded-xl text-gray-600 hover:bg-gray-100 transition">
           <Menu className="w-5 h-5" />
         </button>
       </div>
 
       {/* Mobile overlay */}
       {open && (
-        <div
-          className="md:hidden fixed inset-0 bg-black/40 z-40"
-          onClick={() => setOpen(false)}
-        />
+        <div className="md:hidden fixed inset-0 bg-black/40 z-40" onClick={() => setOpen(false)} />
       )}
 
       {/* Mobile drawer */}
