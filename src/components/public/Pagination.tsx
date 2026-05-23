@@ -25,7 +25,7 @@ export default function Pagination({ page, totalPages, onPageChange }: Props) {
           ? <span key={`dot-${i}`} className="px-2 text-gray-400 text-sm">···</span>
           : <button key={p} onClick={() => onPageChange(p as number)}
               className={`w-9 h-9 rounded-xl text-sm font-medium transition ${
-                p === page ? 'bg-blue-600 text-white shadow-sm' : 'border border-gray-200 bg-white text-gray-600 hover:bg-gray-50'
+                p === page ? 'bg-red-700 text-white shadow-sm' : 'border border-gray-200 bg-white text-gray-600 hover:bg-gray-50'
               }`}>
               {p}
             </button>
