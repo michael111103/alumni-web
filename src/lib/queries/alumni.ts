@@ -1,4 +1,3 @@
-// src/lib/queries/alumni.ts
 import { createClient } from '@/lib/supabase/client'
 import type { AlumniFilter, PaginatedResult, Alumni } from '@/types'
 
@@ -7,7 +6,8 @@ const supabase = createClient()
 export async function getAlumni(
   filter: AlumniFilter = {},
   page = 1,
-  limit = 12
+  limit = 12,
+  includeInactive = false
 ): Promise<PaginatedResult<Alumni>> {
   let query = supabase
     .from('alumni')
@@ -17,7 +17,10 @@ export async function getAlumni(
       master_profesi(id, nama, kategori),
       umkm(id, nama_usaha, logo_url, is_active)
     `, { count: 'exact' })
-    .eq('is_active', true)
+
+  if (!includeInactive) {
+    query = query.eq('is_active', true)
+  }
 
   if (filter.kota_id) query = query.eq('kota_id', filter.kota_id)
   if (filter.profesi_id) query = query.eq('profesi_id', filter.profesi_id)
@@ -26,7 +29,6 @@ export async function getAlumni(
     query = query.ilike('nama_lengkap', `%${filter.search}%`)
   }
 
-  // Filter by benefit (through umkm)
   if (filter.benefit_id) {
     const { data: umkmIds } = await supabase
       .from('umkm_benefits')
@@ -49,7 +51,7 @@ export async function getAlumni(
   const to = from + limit - 1
 
   const { data, count, error } = await query
-    .order('nama_lengkap', { ascending: true })
+    .order('created_at', { ascending: false })
     .range(from, to)
 
   if (error) throw error
@@ -114,6 +116,15 @@ export async function deleteAlumni(id: string) {
   const { error } = await supabase
     .from('alumni')
     .update({ is_active: false })
+    .eq('id', id)
+
+  if (error) throw error
+}
+
+export async function deleteAlumniPermanent(id: string) {
+  const { error } = await supabase
+    .from('alumni')
+    .delete()
     .eq('id', id)
 
   if (error) throw error
