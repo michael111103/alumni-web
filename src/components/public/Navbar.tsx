@@ -19,15 +19,14 @@ export default function Navbar() {
     <nav className="fixed top-0 left-0 right-0 z-50 glass border-b border-white/20 shadow-sm">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between h-16">
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shadow-sm group-hover:bg-blue-700 transition-colors">
-              <Users className="w-4 h-4 text-white" />
-            </div>
-            <span className="font-bold text-gray-900 text-lg tracking-tight" style={{fontFamily: "'Plus Jakarta Sans', sans-serif"}}>
-              Alumni<span className="text-blue-600">Net</span>
+          {/* Logo - hanya tulisan, tanpa icon */}
+          <Link href="/" className="group">
+            <span className="font-bold text-gray-900 text-xl tracking-tight" style={{fontFamily: "'Plus Jakarta Sans', sans-serif"}}>
+              Tarki<span className="text-blue-600">Pages</span>
             </span>
           </Link>
 
+          {/* Desktop Nav */}
           <div className="hidden md:flex items-center gap-1">
             {links.map(({ href, label, icon: Icon }) => (
               <Link key={href} href={href}
@@ -44,12 +43,14 @@ export default function Navbar() {
             ))}
           </div>
 
+          {/* Mobile toggle */}
           <button onClick={() => setOpen(!open)}
             className="md:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-100 transition">
             {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
 
+        {/* Mobile menu */}
         {open && (
           <div className="md:hidden py-3 border-t border-gray-100 space-y-1 animate-fade-up">
             {links.map(({ href, label, icon: Icon }) => (
