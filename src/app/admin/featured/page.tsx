@@ -33,7 +33,7 @@ export default function AdminFeaturedPage() {
   const [allAlumni, setAllAlumni] = useState<Alumni[]>([])
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
+  const [savingId, setSavingId] = useState<string | null>(null)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -62,15 +62,15 @@ export default function AdminFeaturedPage() {
   }
 
   const setAsFeatured = async (alumniId: string) => {
-    setSaving(true)
+    setSavingId(alumniId)
     try {
-      // Nonaktifkan semua featured lama
-      await supabase.from('featured_alumni').update({ is_active: false }).eq('is_active', true)
-      // Insert featured baru
-      await supabase.from('featured_alumni').insert({ alumni_id: alumniId, is_active: true })
+      const { error: updateError } = await supabase.from('featured_alumni').update({ is_active: false }).eq('is_active', true)
+      if (updateError) console.error('Update error:', updateError)
+      const { error: insertError } = await supabase.from('featured_alumni').insert({ alumni_id: alumniId, is_active: true })
+      if (insertError) console.error('Insert error:', insertError)
       await fetchFeatured()
     } finally {
-      setSaving(false)
+      setSavingId(null)
     }
   }
 
@@ -185,10 +185,10 @@ export default function AdminFeaturedPage() {
                       <CheckCircle className="w-3 h-3" /> Featured
                     </span>
                   ) : (
-                    <button onClick={() => setAsFeatured(a.id)} disabled={saving}
+                    <button onClick={() => setAsFeatured(a.id)} disabled={savingId === a.id}
                       className="text-xs font-semibold px-3 py-1.5 rounded-lg border transition hover:opacity-80 flex-shrink-0 disabled:opacity-50"
                       style={{ borderColor: '#C0272D', color: '#C0272D' }}>
-                      {saving ? 'Menyimpan...' : 'Jadikan Featured'}
+                      {savingId === a.id ? 'Menyimpan...' : 'Jadikan Featured'}
                     </button>
                   )}
                 </div>
