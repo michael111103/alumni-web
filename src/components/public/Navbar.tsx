@@ -1,68 +1,74 @@
 'use client'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Users, Store, Menu, X, UserPlus } from 'lucide-react'
+import { Menu, X } from 'lucide-react'
 import { useState } from 'react'
-import { cn } from '@/lib/utils'
 
-export default function Navbar() {
+export default function Navbar({ dark }: { dark?: boolean } = {}) {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
 
   const links = [
-    { href: '/alumni', label: 'Direktori Alumni', icon: Users },
-    { href: '/umkm', label: 'UMKM Alumni', icon: Store },
-    { href: '/daftar', label: 'Daftar Alumni', icon: UserPlus },
+    { href: '/alumni', label: 'Direktori' },
+    { href: '/umkm', label: 'UMKM' },
   ]
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 glass border-b border-gray-200 shadow-sm">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6">
-        <div className="flex items-center justify-between h-16">
-          <Link href="/" className="group">
-            <span className="font-bold text-gray-900 text-xl tracking-tight" style={{fontFamily: "'Plus Jakarta Sans', sans-serif"}}>
-              Tarki<span className="text-red-700">Pages</span>
-            </span>
-          </Link>
+    <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 h-14 border-b"
+      style={{ background: '#2A2A2A', borderColor: '#C0272D' }}>
 
-          <div className="hidden md:flex items-center gap-1">
-            {links.map(({ href, label, icon: Icon }) => (
-              <Link key={href} href={href}
-                className={cn(
-                  'flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all',
-                  pathname.startsWith(href)
-                    ? 'bg-red-50 text-red-700'
-                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
-                )}
-              >
-                <Icon className="w-4 h-4" />
-                {label}
-              </Link>
-            ))}
-          </div>
-
-          <button onClick={() => setOpen(!open)}
-            className="md:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-100 transition">
-            {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
+      {/* Logo */}
+      <Link href="/" className="flex items-center gap-2.5">
+        <div className="w-7 h-7 rounded-full bg-white flex items-center justify-center text-xs font-bold"
+          style={{ color: '#2A2A2A', fontFamily: "'Playfair Display', serif" }}>
+          T
         </div>
+        <span className="font-bold text-base text-white"
+          style={{ fontFamily: "'Playfair Display', serif" }}>
+          Alumni <span className="font-normal opacity-75">Tarakanita</span>
+        </span>
+      </Link>
 
-        {open && (
-          <div className="md:hidden py-3 border-t border-gray-100 space-y-1 animate-fade-up">
-            {links.map(({ href, label, icon: Icon }) => (
-              <Link key={href} href={href} onClick={() => setOpen(false)}
-                className={cn(
-                  'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all',
-                  pathname.startsWith(href) ? 'bg-red-50 text-red-700' : 'text-gray-600 hover:bg-gray-100'
-                )}
-              >
-                <Icon className="w-4 h-4" />
-                {label}
-              </Link>
-            ))}
-          </div>
-        )}
+      {/* Desktop links */}
+      <div className="hidden md:flex items-center gap-5">
+        {links.map(({ href, label }) => (
+          <Link key={href} href={href}
+            className="text-xs transition"
+            style={{ color: 'rgba(255,255,255,0.72)' }}>
+            {label}
+          </Link>
+        ))}
+        <Link href="/daftar"
+          className="text-white text-xs font-semibold px-3.5 py-1.5 rounded-md transition hover:opacity-90"
+          style={{ background: '#C0272D' }}>
+          Daftar UMKM
+        </Link>
       </div>
+
+      {/* Mobile hamburger */}
+      <button onClick={() => setOpen(!open)}
+        className="md:hidden p-1.5 text-white/70 hover:text-white transition">
+        {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+      </button>
+
+      {/* Mobile menu */}
+      {open && (
+        <div className="md:hidden absolute top-14 left-0 right-0 border-b py-3 px-5 space-y-1"
+          style={{ background: '#2A2A2A', borderColor: '#444' }}>
+          {links.map(({ href, label }) => (
+            <Link key={href} href={href} onClick={() => setOpen(false)}
+              className="block py-2 text-sm transition"
+              style={{ color: 'rgba(255,255,255,0.72)' }}>
+              {label}
+            </Link>
+          ))}
+          <Link href="/daftar" onClick={() => setOpen(false)}
+            className="block text-white text-sm font-semibold px-4 py-2.5 rounded-lg text-center mt-2 transition hover:opacity-90"
+            style={{ background: '#C0272D' }}>
+            Daftar UMKM
+          </Link>
+        </div>
+      )}
     </nav>
   )
 }
