@@ -2,7 +2,7 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { LayoutDashboard, Users, Star, Database, Download, LogOut, Menu, X } from 'lucide-react'
+import { LayoutDashboard, Users, Star, Database, Download, LogOut, Menu, X, Image, UserCheck } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useState } from 'react'
 
@@ -10,6 +10,8 @@ const navItems = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/alumni', label: 'Alumni', icon: Users },
   { href: '/admin/umkm', label: 'UMKM Showcase', icon: Star },
+  { href: '/admin/galeri', label: 'Galeri Momen', icon: Image },
+  { href: '/admin/featured', label: 'Alumni Featured', icon: UserCheck },
   { href: '/admin/master-data', label: 'Master Data', icon: Database },
   { href: '/admin/export', label: 'Export / Import', icon: Download },
 ]
@@ -29,7 +31,7 @@ export default function AdminSidebar() {
   const SidebarContent = () => (
     <>
       <div className="p-5 border-b border-gray-100 flex items-center justify-between">
-        <span className="font-bold text-xl" style={{fontFamily: "'Plus Jakarta Sans', sans-serif"}}>
+        <span className="font-bold text-xl" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
           Tarki<span className="text-red-700">Pages</span>
         </span>
         <button onClick={() => setOpen(false)} className="md:hidden p-1 text-gray-400 hover:text-gray-600">
@@ -46,8 +48,7 @@ export default function AdminSidebar() {
               className={cn(
                 'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition',
                 isActive ? 'bg-red-50 text-red-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-              )}
-            >
+              )}>
               <Icon className="w-4 h-4 flex-shrink-0" />
               {item.label}
             </Link>
@@ -68,7 +69,7 @@ export default function AdminSidebar() {
   return (
     <>
       <div className="md:hidden fixed top-0 left-0 right-0 z-40 bg-white border-b border-gray-100 flex items-center justify-between px-4 h-14">
-        <span className="font-bold text-lg" style={{fontFamily: "'Plus Jakarta Sans', sans-serif"}}>
+        <span className="font-bold text-lg" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
           Tarki<span className="text-red-700">Pages</span>
         </span>
         <button onClick={() => setOpen(true)} className="p-2 rounded-xl text-gray-600 hover:bg-gray-100 transition">
