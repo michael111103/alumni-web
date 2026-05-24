@@ -4,213 +4,355 @@ import { formatWhatsApp, formatInstagram, getInitials } from '@/lib/utils'
 import Image from 'next/image'
 import Link from 'next/link'
 import Navbar from '@/components/public/Navbar'
-import { MapPin, Briefcase, Building2, Mail, Instagram, Linkedin, ArrowLeft, ShoppingBag, MessageCircle, Globe, Tag, GraduationCap, Gift } from 'lucide-react'
+import { MessageCircle, Instagram, ExternalLink, ShoppingBag, ChevronRight } from 'lucide-react'
+import { useState } from 'react'
+
+function getInitialsLocal(name: string) {
+  return name.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase()
+}
 
 export default function AlumniDetailPage({ params }: { params: { id: string } }) {
   const { data: alumni, isLoading } = useAlumniById(params.id)
+  const [activeTab, setActiveTab] = useState<'profil' | 'umkm'>('profil')
 
   if (isLoading) return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen" style={{ background: '#FAF8F4', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
       <Navbar />
-      <div className="pt-28 max-w-3xl mx-auto px-4">
-        <div className="skeleton rounded-3xl h-64 mb-4" />
-        <div className="skeleton rounded-2xl h-40" />
+      <div className="pt-20 max-w-2xl mx-auto px-4">
+        <div className="h-32 rounded-2xl bg-gray-200 animate-pulse mb-3" />
+        <div className="h-48 rounded-2xl bg-gray-200 animate-pulse" />
       </div>
     </div>
   )
 
   if (!alumni) return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen" style={{ background: '#FAF8F4', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
       <Navbar />
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <GraduationCap className="w-8 h-8 text-gray-300" />
-          </div>
           <p className="text-gray-500 font-medium">Alumni tidak ditemukan</p>
-          <Link href="/alumni" className="text-blue-600 hover:underline mt-2 inline-block text-sm">← Kembali ke direktori</Link>
+          <Link href="/alumni" className="text-sm mt-2 inline-block" style={{ color: '#C0272D' }}>← Kembali ke direktori</Link>
         </div>
       </div>
     </div>
   )
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <Navbar />
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 pt-24 pb-12">
-        <Link href="/alumni" className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-gray-600 transition mb-5">
-          <ArrowLeft className="w-4 h-4" /> Kembali ke direktori
-        </Link>
+  const hasUMKM = alumni.umkm && alumni.umkm.length > 0
 
-        {/* Profile Card */}
-        <div className="bg-white rounded-3xl border border-gray-100 overflow-hidden mb-4 shadow-sm">
-          <div className="h-24 bg-gradient-to-r from-blue-600 to-blue-800 relative">
-            <div className="absolute inset-0 opacity-10"
-              style={{backgroundImage: 'radial-gradient(circle at 20% 50%, white 1px, transparent 1px)', backgroundSize: '24px 24px'}} />
-          </div>
-          <div className="px-6 pb-6">
-            <div className="flex items-end gap-4 -mt-10 mb-4">
-              <div className="w-20 h-20 rounded-2xl overflow-hidden bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center border-4 border-white shadow-md flex-shrink-0">
-                {alumni.foto_url ? (
-                  <Image src={alumni.foto_url} alt={alumni.nama_lengkap} width={80} height={80} className="object-cover w-full h-full" />
-                ) : (
-                  <span className="text-blue-700 font-bold text-xl">{getInitials(alumni.nama_lengkap)}</span>
+  return (
+    <div className="min-h-screen" style={{ background: '#FAF8F4', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+      <Navbar />
+
+      {/* Plaid stripe */}
+      <div className="flex h-1 pt-14">
+        <div className="flex-[3]" style={{ background: '#C0272D' }} />
+        <div className="flex-[1]" style={{ background: '#2A2A2A' }} />
+        <div className="flex-[2]" style={{ background: '#6B6B6B' }} />
+        <div className="flex-[1]" style={{ background: '#C0272D' }} />
+        <div className="flex-[3]" style={{ background: '#2A2A2A' }} />
+      </div>
+
+      {/* Tabs */}
+      <div className="bg-white border-b" style={{ borderColor: '#E0DDD8' }}>
+        <div className="max-w-2xl mx-auto flex">
+          <button
+            onClick={() => setActiveTab('profil')}
+            className="flex-1 py-3.5 text-sm font-semibold text-center border-b-2 transition"
+            style={{
+              borderColor: activeTab === 'profil' ? '#C0272D' : 'transparent',
+              color: activeTab === 'profil' ? '#C0272D' : '#6B6B6B',
+            }}
+          >
+            Profil Alumni
+          </button>
+          <button
+            onClick={() => setActiveTab('umkm')}
+            className="flex-1 py-3.5 text-sm font-semibold text-center border-b-2 transition"
+            style={{
+              borderColor: activeTab === 'umkm' ? '#C0272D' : 'transparent',
+              color: activeTab === 'umkm' ? '#C0272D' : '#6B6B6B',
+            }}
+          >
+            Detail UMKM
+          </button>
+        </div>
+      </div>
+
+      {/* Breadcrumb */}
+      <div className="max-w-2xl mx-auto px-4 py-2.5">
+        <div className="flex items-center gap-1.5 text-xs" style={{ color: '#6B6B6B' }}>
+          <Link href="/" className="hover:opacity-70 transition">Beranda</Link>
+          <span>/</span>
+          <Link href="/alumni" className="hover:opacity-70 transition">Direktori</Link>
+          <span>/</span>
+          <span style={{ color: '#1A1A1A' }}>{alumni.nama_lengkap}</span>
+        </div>
+      </div>
+
+      {/* Profile Header — dark */}
+      <div style={{ background: '#2A2A2A' }}>
+        <div className="max-w-2xl mx-auto px-4 pt-5 pb-6">
+          <div className="flex items-center gap-4">
+            {/* Avatar */}
+            <div
+              className="w-16 h-16 rounded-full flex items-center justify-center text-white text-lg font-bold flex-shrink-0 overflow-hidden"
+              style={{ background: '#C0272D' }}
+            >
+              {alumni.foto_url ? (
+                <Image src={alumni.foto_url} alt={alumni.nama_lengkap} width={64} height={64} className="object-cover w-full h-full" />
+              ) : (
+                getInitialsLocal(alumni.nama_lengkap)
+              )}
+            </div>
+            {/* Name & subtitle */}
+            <div>
+              <h1 className="text-xl font-bold text-white mb-0.5" style={{ fontFamily: "'Playfair Display', serif" }}>
+                {alumni.nama_lengkap}
+              </h1>
+              <p className="text-xs mb-2" style={{ color: 'rgba(255,255,255,0.6)' }}>
+                {alumni.jabatan || (alumni.master_profesi as any)?.nama || ''}
+              </p>
+              {/* Badges */}
+              <div className="flex flex-wrap gap-1.5">
+                {alumni.angkatan && (
+                  <span
+                    className="text-xs px-2.5 py-1 rounded-full font-medium"
+                    style={{ background: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.85)' }}
+                  >
+                    Angkatan {alumni.angkatan}
+                  </span>
+                )}
+                {(alumni.master_kota as any)?.nama && (
+                  <span
+                    className="text-xs px-2.5 py-1 rounded-full font-medium"
+                    style={{ background: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.85)' }}
+                  >
+                    {(alumni.master_kota as any).nama}
+                  </span>
+                )}
+                {hasUMKM && (
+                  <span
+                    className="text-xs px-2.5 py-1 rounded-full font-medium"
+                    style={{ background: 'rgba(192,39,45,0.75)', color: 'white' }}
+                  >
+                    Punya UMKM
+                  </span>
                 )}
               </div>
-              {alumni.is_active && (
-                <div className="pb-1">
-                  <span className="inline-flex items-center gap-1 text-xs bg-green-50 text-green-700 border border-green-100 px-2.5 py-1 rounded-full font-medium">
-                    <span className="w-1.5 h-1.5 bg-green-500 rounded-full" /> Aktif
-                  </span>
-                </div>
-              )}
             </div>
+          </div>
+        </div>
+        {/* Wave bottom */}
+        <div className="h-6 rounded-t-3xl" style={{ background: '#FAF8F4' }} />
+      </div>
 
-            <h1 className="text-2xl font-bold text-gray-900 mb-1">{alumni.nama_lengkap}</h1>
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-gray-500 mb-4">
-              {alumni.angkatan && (
-                <span className="flex items-center gap-1">
-                  <GraduationCap className="w-3.5 h-3.5 text-gray-300" /> Angkatan {alumni.angkatan}
-                </span>
-              )}
-              {alumni.jurusan && <><span className="text-gray-300">·</span><span>{alumni.jurusan}</span></>}
-            </div>
+      {/* Content */}
+      <div className="max-w-2xl mx-auto px-4 pb-12 space-y-3" style={{ marginTop: '-8px' }}>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-5">
-              {alumni.master_profesi && (
-                <div className="flex items-center gap-2.5 bg-gray-50 rounded-xl px-3 py-2.5">
-                  <Briefcase className="w-4 h-4 text-gray-300 flex-shrink-0" />
-                  <div><p className="text-xs text-gray-400">Profesi</p><p className="text-sm font-medium text-gray-700">{(alumni.master_profesi as any).nama}</p></div>
-                </div>
-              )}
-              {alumni.jabatan && (
-                <div className="flex items-center gap-2.5 bg-gray-50 rounded-xl px-3 py-2.5">
-                  <Building2 className="w-4 h-4 text-gray-300 flex-shrink-0" />
-                  <div><p className="text-xs text-gray-400">Jabatan</p><p className="text-sm font-medium text-gray-700">{alumni.jabatan}</p></div>
-                </div>
-              )}
-              {alumni.perusahaan && (
-                <div className="flex items-center gap-2.5 bg-gray-50 rounded-xl px-3 py-2.5">
-                  <Building2 className="w-4 h-4 text-gray-300 flex-shrink-0" />
-                  <div><p className="text-xs text-gray-400">Perusahaan</p><p className="text-sm font-medium text-gray-700">{alumni.perusahaan}</p></div>
-                </div>
-              )}
-              {alumni.master_kota && (
-                <div className="flex items-center gap-2.5 bg-gray-50 rounded-xl px-3 py-2.5">
-                  <MapPin className="w-4 h-4 text-gray-300 flex-shrink-0" />
-                  <div><p className="text-xs text-gray-400">Domisili</p><p className="text-sm font-medium text-gray-700">{(alumni.master_kota as any).nama}</p></div>
-                </div>
-              )}
-            </div>
+        {/* TENTANG */}
+        {alumni.bio && (
+          <div className="bg-white rounded-2xl p-4 border" style={{ borderColor: '#E0DDD8' }}>
+            <p className="text-xs font-bold uppercase tracking-wider mb-2 flex items-center gap-1.5" style={{ color: '#C0272D' }}>
+              <span className="w-1 h-3 rounded-full inline-block" style={{ background: '#C0272D' }} />
+              TENTANG
+            </p>
+            <p className="text-sm leading-relaxed" style={{ color: '#3A3A3A' }}>
+              {alumni.bio}
+            </p>
+          </div>
+        )}
 
-            <div className="flex flex-wrap gap-2">
-              {alumni.whatsapp && (
-                <a href={formatWhatsApp(alumni.whatsapp)} target="_blank" rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 text-sm bg-green-50 text-green-700 border border-green-100 px-4 py-2 rounded-xl hover:bg-green-100 transition font-medium">
-                  <MessageCircle className="w-4 h-4" /> WhatsApp
-                </a>
-              )}
-              {alumni.email && (
-                <a href={`mailto:${alumni.email}`}
-                  className="flex items-center gap-1.5 text-sm bg-blue-50 text-blue-700 border border-blue-100 px-4 py-2 rounded-xl hover:bg-blue-100 transition font-medium">
-                  <Mail className="w-4 h-4" /> Email
-                </a>
-              )}
-              {alumni.instagram && (
-                <a href={formatInstagram(alumni.instagram)} target="_blank" rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 text-sm bg-pink-50 text-pink-700 border border-pink-100 px-4 py-2 rounded-xl hover:bg-pink-100 transition font-medium">
-                  <Instagram className="w-4 h-4" /> Instagram
-                </a>
-              )}
-              {alumni.linkedin && (
-                <a href={alumni.linkedin} target="_blank" rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 text-sm bg-blue-50 text-blue-700 border border-blue-100 px-4 py-2 rounded-xl hover:bg-blue-100 transition font-medium">
-                  <Linkedin className="w-4 h-4" /> LinkedIn
-                </a>
-              )}
-            </div>
-
-            {alumni.bio && (
-              <div className="mt-5 pt-5 border-t border-gray-50">
-                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Tentang</p>
-                <p className="text-sm text-gray-600 leading-relaxed">{alumni.bio}</p>
+        {/* DATA DIRI + STATUS */}
+        <div className="grid grid-cols-2 gap-3">
+          {/* Data Diri */}
+          <div className="bg-white rounded-2xl p-4 border" style={{ borderColor: '#E0DDD8' }}>
+            <p className="text-xs font-bold uppercase tracking-wider mb-3 flex items-center gap-1.5" style={{ color: '#C0272D' }}>
+              <span className="w-1 h-3 rounded-full inline-block" style={{ background: '#C0272D' }} />
+              DATA DIRI
+            </p>
+            <div className="space-y-2.5">
+              <div className="flex justify-between items-start">
+                <span className="text-xs" style={{ color: '#6B6B6B' }}>Angkatan</span>
+                <span className="text-xs text-right" style={{ color: '#1A1A1A' }}>{alumni.angkatan || '—'}</span>
               </div>
-            )}
+              <div className="flex justify-between items-start">
+                <span className="text-xs" style={{ color: '#6B6B6B' }}>Jurusan</span>
+                <span className="text-xs font-semibold text-right" style={{ color: '#1A1A1A' }}>{alumni.jurusan || '—'}</span>
+              </div>
+              <div className="flex justify-between items-start">
+                <span className="text-xs" style={{ color: '#6B6B6B' }}>Kota</span>
+                <span className="text-xs text-right" style={{ color: '#1A1A1A' }}>{(alumni.master_kota as any)?.nama || '—'}</span>
+              </div>
+              <div className="flex justify-between items-start">
+                <span className="text-xs" style={{ color: '#6B6B6B' }}>Profesi</span>
+                <span className="text-xs font-semibold text-right" style={{ color: '#1A1A1A' }}>{(alumni.master_profesi as any)?.nama || alumni.jabatan || '—'}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Status */}
+          <div className="bg-white rounded-2xl p-4 border" style={{ borderColor: '#E0DDD8' }}>
+            <p className="text-xs font-bold uppercase tracking-wider mb-3 flex items-center gap-1.5" style={{ color: '#C0272D' }}>
+              <span className="w-1 h-3 rounded-full inline-block" style={{ background: '#C0272D' }} />
+              STATUS
+            </p>
+            <div className="space-y-2.5">
+              <div className="flex justify-between items-start">
+                <span className="text-xs" style={{ color: '#6B6B6B' }}>Punya UMKM</span>
+                <span className="text-xs text-right" style={{ color: '#1A1A1A' }}>{hasUMKM ? 'Ya' : 'Tidak'}</span>
+              </div>
+              {hasUMKM && alumni.umkm[0] && (
+                <>
+                  <div className="flex justify-between items-start">
+                    <span className="text-xs" style={{ color: '#6B6B6B' }}>Jangkauan</span>
+                    <span className="text-xs font-semibold text-right" style={{ color: '#1A1A1A' }}>{(alumni.umkm[0] as any).jangkauan || '—'}</span>
+                  </div>
+                  <div className="flex justify-between items-start">
+                    <span className="text-xs" style={{ color: '#6B6B6B' }}>Kolaborasi</span>
+                    <span className="text-xs font-semibold text-right" style={{ color: '#1A1A1A' }}>{(alumni.umkm[0] as any).buka_kolaborasi ? 'Terbuka' : 'Tertutup'}</span>
+                  </div>
+                  <div className="flex justify-between items-start">
+                    <span className="text-xs" style={{ color: '#6B6B6B' }}>Sejak</span>
+                    <span className="text-xs text-right" style={{ color: '#1A1A1A' }}>
+                      {(alumni.umkm[0] as any).created_at
+                        ? new Date((alumni.umkm[0] as any).created_at).toLocaleDateString('id-ID', { month: 'short', year: 'numeric' })
+                        : '—'}
+                    </span>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* UMKM */}
-        {alumni.umkm && alumni.umkm.length > 0 && (
-          <div>
-            <h2 className="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
-              <ShoppingBag className="w-5 h-5 text-orange-500" /> Usaha UMKM
-            </h2>
-            <div className="space-y-3">
+        {/* BENEFIT UNTUK SESAMA ALUMNI */}
+        {hasUMKM && alumni.umkm.some((u: any) => u.umkm_benefits?.length > 0) && (
+          <div className="bg-white rounded-2xl p-4 border" style={{ borderColor: '#E0DDD8' }}>
+            <p className="text-xs font-bold uppercase tracking-wider mb-3 flex items-center gap-1.5" style={{ color: '#C0272D' }}>
+              <span className="w-1 h-3 rounded-full inline-block" style={{ background: '#C0272D' }} />
+              BENEFIT UNTUK SESAMA ALUMNI
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {alumni.umkm.flatMap((u: any) =>
+                (u.umkm_benefits || []).map((b: any) => (
+                  <span
+                    key={b.id}
+                    className="text-xs px-2.5 py-1 rounded-full border flex items-center gap-1"
+                    style={{ borderColor: '#E0DDD8', color: '#3A3A3A', background: '#FAFAFA' }}
+                  >
+                    {b.master_benefit?.emoji && <span>{b.master_benefit.emoji}</span>}
+                    {b.master_benefit?.nama}
+                  </span>
+                ))
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* USAHA UMKM */}
+        {hasUMKM && (
+          <div className="bg-white rounded-2xl p-4 border" style={{ borderColor: '#E0DDD8' }}>
+            <p className="text-xs font-bold uppercase tracking-wider mb-3 flex items-center gap-1.5" style={{ color: '#C0272D' }}>
+              <span className="w-1 h-3 rounded-full inline-block" style={{ background: '#C0272D' }} />
+              USAHA UMKM
+            </p>
+            <div className="space-y-2">
               {alumni.umkm.map((umkm: any) => (
-                <div key={umkm.id} className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
-                  <div className="flex items-center gap-3 mb-3">
+                <button
+                  key={umkm.id}
+                  className="w-full rounded-xl p-3.5 flex items-center gap-3 text-left cursor-pointer hover:opacity-90 transition"
+                  style={{ background: '#2A2A2A' }}
+                  onClick={() => setActiveTab('umkm')}
+                >
+                  <div
+                    className="w-10 h-10 rounded-xl flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
+                    style={{ background: '#444' }}
+                  >
                     {umkm.logo_url ? (
-                      <Image src={umkm.logo_url} alt="logo" width={44} height={44} className="rounded-xl object-contain border border-gray-100" />
+                      <Image src={umkm.logo_url} alt="logo" width={40} height={40} className="rounded-xl object-contain" />
                     ) : (
-                      <div className="w-11 h-11 bg-orange-100 rounded-xl flex items-center justify-center">
-                        <ShoppingBag className="w-5 h-5 text-orange-600" />
-                      </div>
-                    )}
-                    <div>
-                      <h3 className="font-bold text-gray-900">{umkm.nama_usaha}</h3>
-                      {umkm.master_kategori_usaha && (
-                        <span className="inline-flex items-center gap-1 text-xs text-orange-700 bg-orange-50 border border-orange-100 px-2 py-0.5 rounded-full mt-0.5">
-                          <Tag className="w-3 h-3" /> {umkm.master_kategori_usaha.nama}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  {umkm.deskripsi && <p className="text-sm text-gray-600 mb-3 leading-relaxed">{umkm.deskripsi}</p>}
-
-                  {umkm.umkm_benefits?.length > 0 && (
-                    <div className="mb-3">
-                      <p className="text-xs font-semibold text-gray-400 flex items-center gap-1 mb-1.5">
-                        <Gift className="w-3 h-3" /> Benefit untuk alumni
-                      </p>
-                      <div className="flex flex-wrap gap-1.5">
-                        {umkm.umkm_benefits.map((b: any) => (
-                          <span key={b.id} className="text-xs bg-yellow-50 text-yellow-700 border border-yellow-100 px-2.5 py-1 rounded-full">
-                            {b.master_benefit?.nama}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="flex gap-3 flex-wrap pt-3 border-t border-gray-50">
-                    {umkm.whatsapp_bisnis && (
-                      <a href={formatWhatsApp(umkm.whatsapp_bisnis)} target="_blank" rel="noopener noreferrer"
-                        className="flex items-center gap-1.5 text-sm text-green-700 hover:text-green-800 font-medium transition">
-                        <MessageCircle className="w-4 h-4" /> WhatsApp
-                      </a>
-                    )}
-                    {umkm.instagram_usaha && (
-                      <a href={formatInstagram(umkm.instagram_usaha)} target="_blank" rel="noopener noreferrer"
-                        className="flex items-center gap-1.5 text-sm text-pink-700 hover:text-pink-800 font-medium transition">
-                        <Instagram className="w-4 h-4" /> Instagram
-                      </a>
-                    )}
-                    {umkm.toko_online && (
-                      <a href={umkm.toko_online} target="_blank" rel="noopener noreferrer"
-                        className="flex items-center gap-1.5 text-sm text-orange-700 hover:text-orange-800 font-medium transition">
-                        <ShoppingBag className="w-4 h-4" /> Toko Online
-                      </a>
-                    )}
-                    {umkm.website && (
-                      <a href={umkm.website} target="_blank" rel="noopener noreferrer"
-                        className="flex items-center gap-1.5 text-sm text-blue-700 hover:text-blue-800 font-medium transition">
-                        <Globe className="w-4 h-4" /> Website
-                      </a>
+                      getInitialsLocal(umkm.nama_usaha || 'U')
                     )}
                   </div>
-                </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-semibold text-white truncate">{umkm.nama_usaha}</div>
+                    <div className="text-xs" style={{ color: 'rgba(255,255,255,0.5)' }}>
+                      {(umkm.master_kategori_usaha as any)?.nama || umkm.kategori} · {(alumni.master_kota as any)?.nama || ''}
+                    </div>
+                  </div>
+                  <ChevronRight className="w-4 h-4 flex-shrink-0" style={{ color: 'rgba(255,255,255,0.35)' }} />
+                </button>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* KONTAK */}
+        {(alumni.whatsapp || alumni.instagram || alumni.email) && (
+          <div className="bg-white rounded-2xl p-4 border" style={{ borderColor: '#E0DDD8' }}>
+            <p className="text-xs font-bold uppercase tracking-wider mb-3 flex items-center gap-1.5" style={{ color: '#C0272D' }}>
+              <span className="w-1 h-3 rounded-full inline-block" style={{ background: '#C0272D' }} />
+              KONTAK
+            </p>
+            <div className="space-y-3">
+              {alumni.whatsapp && (
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <MessageCircle className="w-4 h-4 flex-shrink-0" style={{ color: '#6B6B6B' }} />
+                    <div>
+                      <div className="text-xs" style={{ color: '#6B6B6B' }}>WhatsApp</div>
+                      <div className="text-sm font-medium" style={{ color: '#1A1A1A' }}>{alumni.whatsapp}</div>
+                    </div>
+                  </div>
+                  <a
+                    href={formatWhatsApp(alumni.whatsapp)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs font-semibold px-3.5 py-1.5 rounded-lg border transition hover:opacity-80"
+                    style={{ borderColor: '#E0DDD8', color: '#1A1A1A' }}
+                  >
+                    Hubungi
+                  </a>
+                </div>
+              )}
+              {alumni.instagram && (
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <Instagram className="w-4 h-4 flex-shrink-0" style={{ color: '#6B6B6B' }} />
+                    <div>
+                      <div className="text-xs" style={{ color: '#6B6B6B' }}>Instagram</div>
+                      <div className="text-sm font-medium" style={{ color: '#1A1A1A' }}>{alumni.instagram}</div>
+                    </div>
+                  </div>
+                  <a
+                    href={formatInstagram(alumni.instagram)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs font-semibold px-3.5 py-1.5 rounded-lg border transition hover:opacity-80"
+                    style={{ borderColor: '#E0DDD8', color: '#1A1A1A' }}
+                  >
+                    Buka
+                  </a>
+                </div>
+              )}
+              {alumni.email && (
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <ExternalLink className="w-4 h-4 flex-shrink-0" style={{ color: '#6B6B6B' }} />
+                    <div>
+                      <div className="text-xs" style={{ color: '#6B6B6B' }}>Email</div>
+                      <div className="text-sm font-medium" style={{ color: '#1A1A1A' }}>{alumni.email}</div>
+                    </div>
+                  </div>
+                  <a
+                    href={`mailto:${alumni.email}`}
+                    className="text-xs font-semibold px-3.5 py-1.5 rounded-lg border transition hover:opacity-80"
+                    style={{ borderColor: '#E0DDD8', color: '#1A1A1A' }}
+                  >
+                    Kirim
+                  </a>
+                </div>
+              )}
             </div>
           </div>
         )}
