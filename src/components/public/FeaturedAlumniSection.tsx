@@ -1,14 +1,14 @@
 'use client'
-import Link from 'next/link'
 import Image from 'next/image'
+import Link from 'next/link'
 import {
   MessageCircle, Instagram, Mail, ChevronRight,
   ShoppingBag, Globe, ArrowLeft, MapPin, Star,
   Handshake, Search, SlidersHorizontal, X, ChevronDown,
-  Users, ArrowRight, TrendingUp, Heart, Zap
+  Users, Heart,
 } from 'lucide-react'
 import { useState } from 'react'
-import { useAlumni, useMasterKota, useMasterProfesi } from '@/hooks/useAlumni'
+import { useAlumni, useAlumniById, useMasterKota, useMasterProfesi } from '@/hooks/useAlumni'
 import Pagination from '@/components/public/Pagination'
 import type { AlumniFilter } from '@/types'
 
@@ -21,480 +21,23 @@ const AVATAR_COLORS = [
   '#C0272D', '#3B3B3B', '#C0272D', '#888', '#3B3B3B',
 ]
 
-type View = 'profil' | 'direktori' | 'beranda'
+type View = 'beranda' | 'direktori' | 'profil'
 
-export default function FeaturedAlumniSection({ alumni }: { alumni: any }) {
+// ── Sub-component: Profil Alumni ──
+function ProfilView({
+  alumni,
+  onBack,
+}: {
+  alumni: any
+  onBack: () => void
+}) {
   const [activeTab, setActiveTab] = useState<'profil' | 'umkm'>('profil')
   const [selectedUMKM, setSelectedUMKM] = useState(0)
-  const [view, setView] = useState<View>('profil')
 
-  // Direktori state
-  const [page, setPage] = useState(1)
-  const [showFilter, setShowFilter] = useState(false)
-  const [filter, setFilter] = useState<AlumniFilter>({ search: '', kota_id: '', profesi_id: '' })
-  const [searchInput, setSearchInput] = useState('')
-  const { data: alumniData, isLoading } = useAlumni(filter, page)
-  const { data: kotas } = useMasterKota()
-  const { data: profesis } = useMasterProfesi()
-
-  if (!alumni) return null
-
-  const hasUMKM = !!(alumni.umkm && alumni.umkm.length > 0)
+  const hasUMKM = !!(alumni?.umkm && alumni.umkm.length > 0)
   const umkmList = hasUMKM ? alumni.umkm : []
   const currentUMKM = umkmList[selectedUMKM] || null
   const allBenefits = hasUMKM ? umkmList.flatMap((u: any) => u.umkm_benefits || []) : []
-  const hasActiveFilter = !!(filter.kota_id || filter.profesi_id || filter.search)
-  const activeFilterCount = [filter.kota_id, filter.profesi_id].filter(Boolean).length
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
-    setFilter(f => ({ ...f, search: searchInput }))
-    setPage(1)
-  }
-
-  const handleFilter = (newFilter: Partial<AlumniFilter>) => {
-    setFilter(f => ({ ...f, ...newFilter }))
-    setPage(1)
-  }
-
-  const clearFilter = () => {
-    setFilter({ search: '', kota_id: '', profesi_id: '' })
-    setSearchInput('')
-    setPage(1)
-  }
-
-  /* ══════════════════════════════
-     VIEW: BERANDA
-  ══════════════════════════════ */
-  if (view === 'beranda') {
-    return (
-      <>
-        {/* TABS */}
-        <div className="bg-white border-b" style={{ borderColor: '#E0DDD8' }}>
-          <div className="max-w-2xl mx-auto flex">
-            <button onClick={() => setActiveTab('profil')}
-              className="flex-1 py-3.5 text-sm font-semibold text-center transition relative"
-              style={{ color: '#C0272D' }}>
-              Profil Alumni
-              <span className="absolute bottom-0 left-0 right-0 h-0.5" style={{ background: '#C0272D' }} />
-            </button>
-            <button onClick={() => setActiveTab('umkm')}
-              className="flex-1 py-3.5 text-sm font-semibold text-center transition relative"
-              style={{ color: '#6B6B6B' }}>
-              Detail UMKM
-            </button>
-          </div>
-        </div>
-
-        {/* BREADCRUMB */}
-        <div className="bg-white border-b" style={{ borderColor: '#F0EDEA' }}>
-          <div className="max-w-2xl mx-auto px-4 py-2.5">
-            <div className="flex items-center gap-1 text-xs">
-              <span className="px-2 py-1 font-semibold" style={{ color: '#1A1A1A' }}>Beranda</span>
-            </div>
-          </div>
-        </div>
-
-        {/* BERANDA CONTENT */}
-        <div className="max-w-2xl mx-auto px-4 pb-12 pt-4 space-y-4">
-
-          {/* Welcome card */}
-          <div className="rounded-2xl p-5 relative overflow-hidden" style={{ background: '#2A2A2A' }}>
-            <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full" style={{ background: 'rgba(192,39,45,0.15)' }} />
-            <div className="absolute -bottom-4 -left-4 w-16 h-16 rounded-full" style={{ background: 'rgba(255,255,255,0.03)' }} />
-            <div className="relative">
-              <div className="inline-flex items-center gap-1.5 border border-white/20 rounded-full px-3 py-1 text-white/60 text-xs tracking-widest uppercase mb-3">
-                <span className="w-1.5 h-1.5 rounded-full bg-red-300" />
-                Komunitas Alumni Tarakanita
-              </div>
-              <h2 className="text-2xl font-black text-white leading-tight mb-2"
-                style={{ fontFamily: "'Playfair Display', serif" }}>
-                Satu ikatan,<br />
-                <em style={{ fontStyle: 'italic', color: '#E8857A' }}>seribu koneksi.</em>
-              </h2>
-              <p className="text-xs leading-relaxed mb-4" style={{ color: 'rgba(255,255,255,0.5)' }}>
-                Temukan sesama alumni, dukung usaha UMKM teman, dan perluas jaringanmu.
-              </p>
-              <div className="flex gap-2">
-                <button onClick={() => setView('direktori')}
-                  className="text-white text-xs font-semibold px-4 py-2 rounded-lg transition hover:opacity-90"
-                  style={{ background: '#C0272D' }}>
-                  Cari Alumni
-                </button>
-                <button onClick={() => { setView('profil'); setActiveTab('profil') }}
-                  className="text-white text-xs px-4 py-2 rounded-lg border border-white/25 hover:border-white/40 transition">
-                  Lihat Profil
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Quick stats */}
-          <div className="grid grid-cols-3 gap-2">
-            {[
-              { icon: <Users className="w-4 h-4" />, label: 'Alumni', color: '#C0272D' },
-              { icon: <ShoppingBag className="w-4 h-4" />, label: 'UMKM Aktif', color: '#2A2A2A' },
-              { icon: <MapPin className="w-4 h-4" />, label: 'Kota', color: '#888' },
-            ].map((item, i) => (
-              <div key={i} className="bg-white rounded-2xl p-3.5 border text-center" style={{ borderColor: '#E0DDD8' }}>
-                <div className="w-8 h-8 rounded-xl flex items-center justify-center mx-auto mb-2 text-white"
-                  style={{ background: item.color }}>
-                  {item.icon}
-                </div>
-                <div className="text-xs" style={{ color: '#9B9B9B' }}>{item.label}</div>
-              </div>
-            ))}
-          </div>
-
-          {/* Fitur unggulan */}
-          <div className="bg-white rounded-2xl p-4 border" style={{ borderColor: '#E0DDD8' }}>
-            <p className="text-xs font-bold uppercase tracking-wider mb-3 flex items-center gap-1.5" style={{ color: '#C0272D' }}>
-              <span className="w-1 h-3.5 rounded-full inline-block" style={{ background: '#C0272D' }} />
-              APA YANG BISA KAMU LAKUKAN
-            </p>
-            <div className="space-y-3">
-              {[
-                {
-                  icon: <Users className="w-4 h-4" />,
-                  title: 'Temukan Alumni',
-                  desc: 'Cari sesama alumni berdasarkan kota, profesi, atau angkatan',
-                  action: () => setView('direktori'),
-                  btnLabel: 'Cari Sekarang',
-                  color: '#C0272D',
-                },
-                {
-                  icon: <ShoppingBag className="w-4 h-4" />,
-                  title: 'Dukung UMKM',
-                  desc: 'Temukan dan dukung usaha dari alumni Tarakanita',
-                  action: () => { setView('profil'); setActiveTab('umkm') },
-                  btnLabel: 'Lihat UMKM',
-                  color: '#2A2A2A',
-                },
-                {
-                  icon: <Handshake className="w-4 h-4" />,
-                  title: 'Buka Kolaborasi',
-                  desc: 'Temukan alumni yang terbuka untuk berkolaborasi',
-                  action: () => { setFilter(f => ({ ...f })); setView('direktori') },
-                  btnLabel: 'Jelajahi',
-                  color: '#888',
-                },
-              ].map((item, i) => (
-                <div key={i} className="flex items-center gap-3 p-3 rounded-xl" style={{ background: '#FAFAFA', border: '1px solid #E0DDD8' }}>
-                  <div className="w-9 h-9 rounded-xl flex items-center justify-center text-white flex-shrink-0"
-                    style={{ background: item.color }}>
-                    {item.icon}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-xs font-bold mb-0.5" style={{ color: '#1A1A1A' }}>{item.title}</div>
-                    <div className="text-xs" style={{ color: '#9B9B9B' }}>{item.desc}</div>
-                  </div>
-                  <button onClick={item.action}
-                    className="text-xs font-semibold px-3 py-1.5 rounded-lg flex-shrink-0 transition hover:opacity-80"
-                    style={{ background: item.color, color: 'white' }}>
-                    {item.btnLabel}
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Profil featured alumni */}
-          <div className="bg-white rounded-2xl p-4 border" style={{ borderColor: '#E0DDD8' }}>
-            <p className="text-xs font-bold uppercase tracking-wider mb-3 flex items-center gap-1.5" style={{ color: '#C0272D' }}>
-              <span className="w-1 h-3.5 rounded-full inline-block" style={{ background: '#C0272D' }} />
-              ALUMNI FEATURED
-            </p>
-            <button onClick={() => setView('profil')}
-              className="w-full flex items-center gap-3 p-3 rounded-xl transition hover:opacity-90"
-              style={{ background: '#2A2A2A' }}>
-              <div className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0"
-                style={{ background: '#C0272D' }}>
-                {alumni.foto_url
-                  ? <img src={alumni.foto_url} alt="" className="w-full h-full object-cover rounded-full" />
-                  : getInits(alumni.nama_lengkap)}
-              </div>
-              <div className="flex-1 min-w-0 text-left">
-                <div className="text-sm font-bold text-white truncate">{alumni.nama_lengkap}</div>
-                <div className="text-xs" style={{ color: 'rgba(255,255,255,0.5)' }}>
-                  {alumni.jabatan || alumni.master_profesi?.nama || '—'}
-                </div>
-              </div>
-              <ChevronRight className="w-4 h-4 flex-shrink-0" style={{ color: 'rgba(255,255,255,0.3)' }} />
-            </button>
-          </div>
-
-          {/* CTA daftar */}
-          <div className="rounded-2xl p-4 text-center" style={{ background: '#C0272D' }}>
-            <Heart className="w-6 h-6 text-white/60 mx-auto mb-2" />
-            <p className="text-sm font-bold text-white mb-1">Punya usaha UMKM?</p>
-            <p className="text-xs mb-3" style={{ color: 'rgba(255,255,255,0.65)' }}>
-              Tampil di spotlight minggu depan — gratis untuk alumni.
-            </p>
-            <a href="/daftar"
-              className="inline-block text-xs font-bold px-5 py-2 rounded-lg transition hover:opacity-90"
-              style={{ background: 'white', color: '#C0272D' }}>
-              Daftarkan Sekarang
-            </a>
-          </div>
-        </div>
-      </>
-    )
-  }
-
-  /* ══════════════════════════════
-     VIEW: DIREKTORI
-  ══════════════════════════════ */
-  if (view === 'direktori') {
-    return (
-      <>
-        {/* TABS */}
-        <div className="bg-white border-b" style={{ borderColor: '#E0DDD8' }}>
-          <div className="max-w-2xl mx-auto flex">
-            <button onClick={() => setActiveTab('profil')}
-              className="flex-1 py-3.5 text-sm font-semibold text-center transition relative"
-              style={{ color: '#6B6B6B' }}>
-              Profil Alumni
-            </button>
-            <button className="flex-1 py-3.5 text-sm font-semibold text-center transition relative"
-              style={{ color: '#6B6B6B' }}>
-              Detail UMKM
-            </button>
-          </div>
-        </div>
-
-        {/* BREADCRUMB */}
-        <div className="bg-white border-b" style={{ borderColor: '#F0EDEA' }}>
-          <div className="max-w-2xl mx-auto px-4 py-2.5">
-            <div className="flex items-center gap-1 text-xs">
-              <button onClick={() => setView('beranda')}
-                className="px-2 py-1 rounded-lg hover:bg-gray-100 transition font-medium"
-                style={{ color: '#9B9B9B' }}>
-                Beranda
-              </button>
-              <span style={{ color: '#D0CCC8' }}>/</span>
-              <span className="px-2 py-1 font-semibold" style={{ color: '#1A1A1A' }}>Direktori</span>
-            </div>
-          </div>
-        </div>
-
-        {/* HEADER */}
-        <div style={{ background: '#2A2A2A' }}>
-          <div className="max-w-2xl mx-auto px-4 pt-5 pb-7">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-                style={{ background: 'rgba(192,39,45,0.3)' }}>
-                <Users className="w-5 h-5" style={{ color: '#E8857A' }} />
-              </div>
-              <div>
-                <h2 className="text-xl font-black text-white" style={{ fontFamily: "'Playfair Display', serif" }}>
-                  Direktori Alumni
-                </h2>
-                <p className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>
-                  {alumniData?.total ? `${alumniData.total.toLocaleString('id-ID')} alumni terdaftar` : 'Memuat...'}
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="h-6 rounded-t-[28px]" style={{ background: '#FAF8F4' }} />
-        </div>
-
-        {/* CONTENT */}
-        <div className="max-w-2xl mx-auto px-4 pb-12" style={{ marginTop: '-4px' }}>
-
-          {/* Search */}
-          <form onSubmit={handleSearch} className="flex gap-2 mb-3">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#9B9B9B' }} />
-              <input type="text" value={searchInput} onChange={e => setSearchInput(e.target.value)}
-                placeholder="Nama, profesi, atau kota..."
-                className="w-full pl-10 pr-4 py-3 rounded-xl text-sm focus:outline-none border transition"
-                style={{ background: 'white', borderColor: '#E0DDD8', color: '#1A1A1A' }} />
-            </div>
-            <button type="submit"
-              className="text-white text-sm font-semibold px-5 py-3 rounded-xl transition hover:opacity-90 flex-shrink-0"
-              style={{ background: '#C0272D' }}>
-              Cari
-            </button>
-            <button type="button" onClick={() => setShowFilter(!showFilter)}
-              className="relative flex items-center px-3.5 py-3 rounded-xl border transition flex-shrink-0"
-              style={{
-                borderColor: showFilter || activeFilterCount > 0 ? '#C0272D' : '#E0DDD8',
-                background: showFilter || activeFilterCount > 0 ? '#F9ECEC' : 'white',
-                color: showFilter || activeFilterCount > 0 ? '#C0272D' : '#6B6B6B',
-              }}>
-              <SlidersHorizontal className="w-4 h-4" />
-              {activeFilterCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 w-4 h-4 text-white text-xs rounded-full flex items-center justify-center font-bold"
-                  style={{ background: '#C0272D' }}>
-                  {activeFilterCount}
-                </span>
-              )}
-            </button>
-            {hasActiveFilter && (
-              <button type="button" onClick={clearFilter}
-                className="p-3 rounded-xl border flex-shrink-0"
-                style={{ borderColor: '#E0DDD8', background: 'white', color: '#9B9B9B' }}>
-                <X className="w-4 h-4" />
-              </button>
-            )}
-          </form>
-
-          {/* Filter panel */}
-          {showFilter && (
-            <div className="bg-white rounded-2xl border p-4 mb-3 space-y-3" style={{ borderColor: '#E0DDD8' }}>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="flex items-center gap-1 text-xs font-bold uppercase tracking-wider mb-2" style={{ color: '#C0272D' }}>
-                    <MapPin className="w-3 h-3" /> Kota
-                  </label>
-                  <div className="relative">
-                    <select value={filter.kota_id || ''} onChange={e => handleFilter({ kota_id: e.target.value })}
-                      className="w-full appearance-none border rounded-xl px-3 py-2.5 text-xs focus:outline-none pr-8"
-                      style={{ borderColor: '#E0DDD8', background: '#FAFAFA', color: '#1A1A1A' }}>
-                      <option value="">Semua Kota</option>
-                      {kotas?.map(k => <option key={k.id} value={k.id}>{k.nama}</option>)}
-                    </select>
-                    <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 pointer-events-none" style={{ color: '#9B9B9B' }} />
-                  </div>
-                </div>
-                <div>
-                  <label className="flex items-center gap-1 text-xs font-bold uppercase tracking-wider mb-2" style={{ color: '#C0272D' }}>
-                    <Users className="w-3 h-3" /> Profesi
-                  </label>
-                  <div className="relative">
-                    <select value={filter.profesi_id || ''} onChange={e => handleFilter({ profesi_id: e.target.value })}
-                      className="w-full appearance-none border rounded-xl px-3 py-2.5 text-xs focus:outline-none pr-8"
-                      style={{ borderColor: '#E0DDD8', background: '#FAFAFA', color: '#1A1A1A' }}>
-                      <option value="">Semua Profesi</option>
-                      {profesis?.map(p => <option key={p.id} value={p.id}>{p.nama}</option>)}
-                    </select>
-                    <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 pointer-events-none" style={{ color: '#9B9B9B' }} />
-                  </div>
-                </div>
-              </div>
-              <button onClick={clearFilter}
-                className="flex items-center gap-1.5 text-xs font-medium transition hover:opacity-70"
-                style={{ color: '#9B9B9B' }}>
-                <X className="w-3.5 h-3.5" /> Reset filter
-              </button>
-            </div>
-          )}
-
-          {/* Active filter pills */}
-          {hasActiveFilter && (
-            <div className="flex flex-wrap gap-1.5 mb-3">
-              {filter.search && (
-                <div className="flex items-center gap-1 text-xs px-2.5 py-1 rounded-full"
-                  style={{ background: '#F9ECEC', color: '#C0272D', border: '1px solid #EDCACA' }}>
-                  "{filter.search}"
-                  <button onClick={() => { setFilter(f => ({ ...f, search: '' })); setSearchInput('') }}>
-                    <X className="w-3 h-3 ml-0.5" />
-                  </button>
-                </div>
-              )}
-              {filter.kota_id && (
-                <div className="flex items-center gap-1 text-xs px-2.5 py-1 rounded-full"
-                  style={{ background: '#F9ECEC', color: '#C0272D', border: '1px solid #EDCACA' }}>
-                  {kotas?.find(k => k.id === filter.kota_id)?.nama}
-                  <button onClick={() => handleFilter({ kota_id: '' })}><X className="w-3 h-3 ml-0.5" /></button>
-                </div>
-              )}
-              {filter.profesi_id && (
-                <div className="flex items-center gap-1 text-xs px-2.5 py-1 rounded-full"
-                  style={{ background: '#F9ECEC', color: '#C0272D', border: '1px solid #EDCACA' }}>
-                  {profesis?.find(p => p.id === filter.profesi_id)?.nama}
-                  <button onClick={() => handleFilter({ profesi_id: '' })}><X className="w-3 h-3 ml-0.5" /></button>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Result count */}
-          {!isLoading && alumniData?.data?.length > 0 && (
-            <p className="text-xs mb-3" style={{ color: '#9B9B9B' }}>
-              Menampilkan <span className="font-semibold" style={{ color: '#1A1A1A' }}>{alumniData.data.length}</span> dari{' '}
-              <span className="font-semibold" style={{ color: '#1A1A1A' }}>{alumniData.total.toLocaleString('id-ID')}</span> alumni
-            </p>
-          )}
-
-          {/* Grid */}
-          {isLoading ? (
-            <div className="grid grid-cols-3 gap-3">
-              {Array.from({ length: 9 }).map((_, i) => (
-                <div key={i} className="h-36 rounded-xl bg-gray-200 animate-pulse" />
-              ))}
-            </div>
-          ) : !alumniData?.data?.length ? (
-            <div className="text-center py-16 bg-white rounded-2xl border" style={{ borderColor: '#E0DDD8' }}>
-              <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-3" style={{ background: '#F0EDEA' }}>
-                <Search className="w-6 h-6" style={{ color: '#C0272D', opacity: 0.4 }} />
-              </div>
-              <p className="font-semibold mb-1" style={{ color: '#1A1A1A' }}>Alumni tidak ditemukan</p>
-              <p className="text-sm" style={{ color: '#9B9B9B' }}>Coba ubah kata kunci atau reset filter</p>
-              {hasActiveFilter && (
-                <button onClick={clearFilter} className="mt-4 text-sm font-semibold hover:opacity-70" style={{ color: '#C0272D' }}>
-                  Reset filter
-                </button>
-              )}
-            </div>
-          ) : (
-            <>
-              <div className="grid grid-cols-3 gap-3">
-                {alumniData.data.map((a: any, idx: number) => {
-                  const avatarColor = AVATAR_COLORS[idx % AVATAR_COLORS.length]
-                  const hasUMKMFlag = a.umkm && a.umkm.length > 0
-                  return (
-                    <button key={a.id}
-                      onClick={() => {
-                        // Switch ke view profil alumni yang diklik
-                        window.location.href = `/alumni/${a.id}`
-                      }}
-                      className="bg-white border rounded-xl p-3.5 cursor-pointer transition-all hover:border-red-400 hover:shadow-sm text-left"
-                      style={{ borderColor: '#E0DDD8' }}>
-                      <div className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold mb-2.5 overflow-hidden"
-                        style={{ background: avatarColor, color: 'white' }}>
-                        {a.foto_url
-                          ? <img src={a.foto_url} alt="" className="w-full h-full object-cover rounded-full" />
-                          : getInits(a.nama_lengkap)}
-                      </div>
-                      <div className="text-xs font-bold leading-tight mb-0.5 truncate" style={{ color: '#1A1A1A' }}>
-                        {a.nama_lengkap.split(' ')[0]}{' '}
-                        {a.nama_lengkap.split(' ')[1]?.[0] ? `${a.nama_lengkap.split(' ')[1][0]}.` : ''}
-                      </div>
-                      <div className="text-xs mb-1.5 truncate" style={{ color: '#6B6B6B' }}>
-                        {(a.master_profesi as any)?.nama || a.jabatan || '—'}
-                      </div>
-                      {hasUMKMFlag && (
-                        <span className="text-xs px-1.5 py-0.5 rounded-full" style={{ background: '#EFEFED', color: '#6B6B6B' }}>
-                          UMKM
-                        </span>
-                      )}
-                      {(a.master_kota as any)?.nama && (
-                        <div className="text-xs font-semibold mt-1 truncate" style={{ color: '#C0272D' }}>
-                          {(a.master_kota as any).nama}
-                        </div>
-                      )}
-                    </button>
-                  )
-                })}
-              </div>
-              {alumniData.totalPages > 1 && (
-                <div className="mt-6">
-                  <Pagination page={page} totalPages={alumniData.totalPages} onPageChange={(p) => {
-                    setPage(p)
-                  }} />
-                </div>
-              )}
-            </>
-          )}
-        </div>
-      </>
-    )
-  }
-
-  /* ══════════════════════════════
-     VIEW: PROFIL ALUMNI (default)
-  ══════════════════════════════ */
 
   const renderUMKMTab = () => {
     if (!hasUMKM) return (
@@ -672,13 +215,13 @@ export default function FeaturedAlumniSection({ alumni }: { alumni: any }) {
       <div className="bg-white border-b" style={{ borderColor: '#F0EDEA' }}>
         <div className="max-w-2xl mx-auto px-4 py-2.5">
           <div className="flex items-center gap-1 text-xs">
-            <button onClick={() => setView('beranda')}
+            <button onClick={() => onBack()}
               className="px-2 py-1 rounded-lg hover:bg-gray-100 transition font-medium"
               style={{ color: '#9B9B9B' }}>
               Beranda
             </button>
             <span style={{ color: '#D0CCC8' }}>/</span>
-            <button onClick={() => setView('direktori')}
+            <button onClick={() => onBack()}
               className="px-2 py-1 rounded-lg hover:bg-gray-100 transition font-medium"
               style={{ color: '#9B9B9B' }}>
               Direktori
@@ -918,5 +461,492 @@ export default function FeaturedAlumniSection({ alumni }: { alumni: any }) {
         </div>
       )}
     </>
+  )
+}
+
+// ── Sub-component: Direktori ──
+function DirektoriView({
+  onSelectAlumni,
+  onBack,
+}: {
+  onSelectAlumni: (id: string) => void
+  onBack: () => void
+}) {
+  const [page, setPage] = useState(1)
+  const [showFilter, setShowFilter] = useState(false)
+  const [filter, setFilter] = useState<AlumniFilter>({ search: '', kota_id: '', profesi_id: '' })
+  const [searchInput, setSearchInput] = useState('')
+  const { data: alumniData, isLoading } = useAlumni(filter, page)
+  const { data: kotas } = useMasterKota()
+  const { data: profesis } = useMasterProfesi()
+
+  const hasActiveFilter = !!(filter.kota_id || filter.profesi_id || filter.search)
+  const activeFilterCount = [filter.kota_id, filter.profesi_id].filter(Boolean).length
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    setFilter(f => ({ ...f, search: searchInput }))
+    setPage(1)
+  }
+
+  const handleFilter = (newFilter: Partial<AlumniFilter>) => {
+    setFilter(f => ({ ...f, ...newFilter }))
+    setPage(1)
+  }
+
+  const clearFilter = () => {
+    setFilter({ search: '', kota_id: '', profesi_id: '' })
+    setSearchInput('')
+    setPage(1)
+  }
+
+  return (
+    <>
+      {/* TABS */}
+      <div className="bg-white border-b" style={{ borderColor: '#E0DDD8' }}>
+        <div className="max-w-2xl mx-auto flex">
+          <div className="flex-1 py-3.5 text-sm font-semibold text-center" style={{ color: '#6B6B6B' }}>Profil Alumni</div>
+          <div className="flex-1 py-3.5 text-sm font-semibold text-center" style={{ color: '#6B6B6B' }}>Detail UMKM</div>
+        </div>
+      </div>
+
+      {/* BREADCRUMB */}
+      <div className="bg-white border-b" style={{ borderColor: '#F0EDEA' }}>
+        <div className="max-w-2xl mx-auto px-4 py-2.5">
+          <div className="flex items-center gap-1 text-xs">
+            <button onClick={onBack}
+              className="px-2 py-1 rounded-lg hover:bg-gray-100 transition font-medium"
+              style={{ color: '#9B9B9B' }}>
+              Beranda
+            </button>
+            <span style={{ color: '#D0CCC8' }}>/</span>
+            <span className="px-2 py-1 font-semibold" style={{ color: '#1A1A1A' }}>Direktori</span>
+          </div>
+        </div>
+      </div>
+
+      {/* HEADER */}
+      <div style={{ background: '#2A2A2A' }}>
+        <div className="max-w-2xl mx-auto px-4 pt-5 pb-7">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+              style={{ background: 'rgba(192,39,45,0.3)' }}>
+              <Users className="w-5 h-5" style={{ color: '#E8857A' }} />
+            </div>
+            <div>
+              <h2 className="text-xl font-black text-white" style={{ fontFamily: "'Playfair Display', serif" }}>
+                Direktori Alumni
+              </h2>
+              <p className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>
+                {alumniData?.total ? `${alumniData.total.toLocaleString('id-ID')} alumni terdaftar` : 'Memuat...'}
+              </p>
+            </div>
+          </div>
+        </div>
+        <div className="h-6 rounded-t-[28px]" style={{ background: '#FAF8F4' }} />
+      </div>
+
+      {/* CONTENT */}
+      <div className="max-w-2xl mx-auto px-4 pb-12" style={{ marginTop: '-4px' }}>
+        <form onSubmit={handleSearch} className="flex gap-2 mb-3">
+          <div className="flex-1 relative">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#9B9B9B' }} />
+            <input type="text" value={searchInput} onChange={e => setSearchInput(e.target.value)}
+              placeholder="Nama, profesi, atau kota..."
+              className="w-full pl-10 pr-4 py-3 rounded-xl text-sm focus:outline-none border transition"
+              style={{ background: 'white', borderColor: '#E0DDD8', color: '#1A1A1A' }} />
+          </div>
+          <button type="submit"
+            className="text-white text-sm font-semibold px-5 py-3 rounded-xl transition hover:opacity-90 flex-shrink-0"
+            style={{ background: '#C0272D' }}>
+            Cari
+          </button>
+          <button type="button" onClick={() => setShowFilter(!showFilter)}
+            className="relative flex items-center px-3.5 py-3 rounded-xl border transition flex-shrink-0"
+            style={{
+              borderColor: showFilter || activeFilterCount > 0 ? '#C0272D' : '#E0DDD8',
+              background: showFilter || activeFilterCount > 0 ? '#F9ECEC' : 'white',
+              color: showFilter || activeFilterCount > 0 ? '#C0272D' : '#6B6B6B',
+            }}>
+            <SlidersHorizontal className="w-4 h-4" />
+            {activeFilterCount > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 w-4 h-4 text-white text-xs rounded-full flex items-center justify-center font-bold"
+                style={{ background: '#C0272D' }}>
+                {activeFilterCount}
+              </span>
+            )}
+          </button>
+          {hasActiveFilter && (
+            <button type="button" onClick={clearFilter}
+              className="p-3 rounded-xl border flex-shrink-0"
+              style={{ borderColor: '#E0DDD8', background: 'white', color: '#9B9B9B' }}>
+              <X className="w-4 h-4" />
+            </button>
+          )}
+        </form>
+
+        {showFilter && (
+          <div className="bg-white rounded-2xl border p-4 mb-3 space-y-3" style={{ borderColor: '#E0DDD8' }}>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="flex items-center gap-1 text-xs font-bold uppercase tracking-wider mb-2" style={{ color: '#C0272D' }}>
+                  <MapPin className="w-3 h-3" /> Kota
+                </label>
+                <div className="relative">
+                  <select value={filter.kota_id || ''} onChange={e => handleFilter({ kota_id: e.target.value })}
+                    className="w-full appearance-none border rounded-xl px-3 py-2.5 text-xs focus:outline-none pr-8"
+                    style={{ borderColor: '#E0DDD8', background: '#FAFAFA', color: '#1A1A1A' }}>
+                    <option value="">Semua Kota</option>
+                    {kotas?.map(k => <option key={k.id} value={k.id}>{k.nama}</option>)}
+                  </select>
+                  <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 pointer-events-none" style={{ color: '#9B9B9B' }} />
+                </div>
+              </div>
+              <div>
+                <label className="flex items-center gap-1 text-xs font-bold uppercase tracking-wider mb-2" style={{ color: '#C0272D' }}>
+                  <Users className="w-3 h-3" /> Profesi
+                </label>
+                <div className="relative">
+                  <select value={filter.profesi_id || ''} onChange={e => handleFilter({ profesi_id: e.target.value })}
+                    className="w-full appearance-none border rounded-xl px-3 py-2.5 text-xs focus:outline-none pr-8"
+                    style={{ borderColor: '#E0DDD8', background: '#FAFAFA', color: '#1A1A1A' }}>
+                    <option value="">Semua Profesi</option>
+                    {profesis?.map(p => <option key={p.id} value={p.id}>{p.nama}</option>)}
+                  </select>
+                  <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 pointer-events-none" style={{ color: '#9B9B9B' }} />
+                </div>
+              </div>
+            </div>
+            <button onClick={clearFilter}
+              className="flex items-center gap-1.5 text-xs font-medium transition hover:opacity-70"
+              style={{ color: '#9B9B9B' }}>
+              <X className="w-3.5 h-3.5" /> Reset filter
+            </button>
+          </div>
+        )}
+
+        {hasActiveFilter && (
+          <div className="flex flex-wrap gap-1.5 mb-3">
+            {filter.search && (
+              <div className="flex items-center gap-1 text-xs px-2.5 py-1 rounded-full"
+                style={{ background: '#F9ECEC', color: '#C0272D', border: '1px solid #EDCACA' }}>
+                "{filter.search}"
+                <button onClick={() => { setFilter(f => ({ ...f, search: '' })); setSearchInput('') }}>
+                  <X className="w-3 h-3 ml-0.5" />
+                </button>
+              </div>
+            )}
+            {filter.kota_id && (
+              <div className="flex items-center gap-1 text-xs px-2.5 py-1 rounded-full"
+                style={{ background: '#F9ECEC', color: '#C0272D', border: '1px solid #EDCACA' }}>
+                {kotas?.find(k => k.id === filter.kota_id)?.nama}
+                <button onClick={() => handleFilter({ kota_id: '' })}><X className="w-3 h-3 ml-0.5" /></button>
+              </div>
+            )}
+            {filter.profesi_id && (
+              <div className="flex items-center gap-1 text-xs px-2.5 py-1 rounded-full"
+                style={{ background: '#F9ECEC', color: '#C0272D', border: '1px solid #EDCACA' }}>
+                {profesis?.find(p => p.id === filter.profesi_id)?.nama}
+                <button onClick={() => handleFilter({ profesi_id: '' })}><X className="w-3 h-3 ml-0.5" /></button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {!isLoading && alumniData?.data?.length > 0 && (
+          <p className="text-xs mb-3" style={{ color: '#9B9B9B' }}>
+            Menampilkan <span className="font-semibold" style={{ color: '#1A1A1A' }}>{alumniData.data.length}</span> dari{' '}
+            <span className="font-semibold" style={{ color: '#1A1A1A' }}>{alumniData.total.toLocaleString('id-ID')}</span> alumni
+          </p>
+        )}
+
+        {isLoading ? (
+          <div className="grid grid-cols-3 gap-3">
+            {Array.from({ length: 9 }).map((_, i) => (
+              <div key={i} className="h-36 rounded-xl bg-gray-200 animate-pulse" />
+            ))}
+          </div>
+        ) : !alumniData?.data?.length ? (
+          <div className="text-center py-16 bg-white rounded-2xl border" style={{ borderColor: '#E0DDD8' }}>
+            <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-3" style={{ background: '#F0EDEA' }}>
+              <Search className="w-6 h-6" style={{ color: '#C0272D', opacity: 0.4 }} />
+            </div>
+            <p className="font-semibold mb-1" style={{ color: '#1A1A1A' }}>Alumni tidak ditemukan</p>
+            <p className="text-sm" style={{ color: '#9B9B9B' }}>Coba ubah kata kunci atau reset filter</p>
+            {hasActiveFilter && (
+              <button onClick={clearFilter} className="mt-4 text-sm font-semibold hover:opacity-70" style={{ color: '#C0272D' }}>
+                Reset filter
+              </button>
+            )}
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-3 gap-3">
+              {alumniData.data.map((a: any, idx: number) => {
+                const avatarColor = AVATAR_COLORS[idx % AVATAR_COLORS.length]
+                const hasUMKMFlag = a.umkm && a.umkm.length > 0
+                return (
+                  <button key={a.id}
+                    onClick={() => onSelectAlumni(a.id)}
+                    className="bg-white border rounded-xl p-3.5 cursor-pointer transition-all hover:border-red-400 hover:shadow-sm text-left w-full"
+                    style={{ borderColor: '#E0DDD8' }}>
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold mb-2.5 overflow-hidden"
+                      style={{ background: avatarColor, color: 'white' }}>
+                      {a.foto_url
+                        ? <img src={a.foto_url} alt="" className="w-full h-full object-cover rounded-full" />
+                        : getInits(a.nama_lengkap)}
+                    </div>
+                    <div className="text-xs font-bold leading-tight mb-0.5 truncate" style={{ color: '#1A1A1A' }}>
+                      {a.nama_lengkap.split(' ')[0]}{' '}
+                      {a.nama_lengkap.split(' ')[1]?.[0] ? `${a.nama_lengkap.split(' ')[1][0]}.` : ''}
+                    </div>
+                    <div className="text-xs mb-1.5 truncate" style={{ color: '#6B6B6B' }}>
+                      {(a.master_profesi as any)?.nama || a.jabatan || '—'}
+                    </div>
+                    {hasUMKMFlag && (
+                      <span className="text-xs px-1.5 py-0.5 rounded-full" style={{ background: '#EFEFED', color: '#6B6B6B' }}>
+                        UMKM
+                      </span>
+                    )}
+                    {(a.master_kota as any)?.nama && (
+                      <div className="text-xs font-semibold mt-1 truncate" style={{ color: '#C0272D' }}>
+                        {(a.master_kota as any).nama}
+                      </div>
+                    )}
+                  </button>
+                )
+              })}
+            </div>
+            {alumniData.totalPages > 1 && (
+              <div className="mt-6">
+                <Pagination page={page} totalPages={alumniData.totalPages} onPageChange={setPage} />
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    </>
+  )
+}
+
+// ── MAIN COMPONENT ──
+export default function FeaturedAlumniSection({ alumni: defaultAlumni }: { alumni: any }) {
+  const [view, setView] = useState<View>('beranda') // ← default BERANDA
+  const [selectedAlumniId, setSelectedAlumniId] = useState<string | null>(null)
+
+  // Fetch alumni yang diklik dari direktori
+  const { data: fetchedAlumni, isLoading: loadingAlumni } = useAlumniById(selectedAlumniId || '')
+
+  // Alumni yang ditampilkan: kalau dari direktori pakai fetchedAlumni, kalau dari beranda pakai defaultAlumni
+  const displayAlumni = selectedAlumniId ? fetchedAlumni : defaultAlumni
+
+  const goToBeranda = () => {
+    setView('beranda')
+    setSelectedAlumniId(null)
+  }
+
+  const goToDirektori = () => {
+    setView('direktori')
+  }
+
+  const selectAlumni = (id: string) => {
+    setSelectedAlumniId(id)
+    setView('profil')
+  }
+
+  /* ══════════ VIEW: BERANDA ══════════ */
+  if (view === 'beranda') {
+    return (
+      <>
+        <div className="bg-white border-b" style={{ borderColor: '#E0DDD8' }}>
+          <div className="max-w-2xl mx-auto flex">
+            <div className="flex-1 py-3.5 text-sm font-semibold text-center relative" style={{ color: '#C0272D' }}>
+              Profil Alumni
+              <span className="absolute bottom-0 left-0 right-0 h-0.5" style={{ background: '#C0272D' }} />
+            </div>
+            <div className="flex-1 py-3.5 text-sm font-semibold text-center" style={{ color: '#6B6B6B' }}>Detail UMKM</div>
+          </div>
+        </div>
+
+        <div className="bg-white border-b" style={{ borderColor: '#F0EDEA' }}>
+          <div className="max-w-2xl mx-auto px-4 py-2.5">
+            <span className="px-2 py-1 text-xs font-semibold" style={{ color: '#1A1A1A' }}>Beranda</span>
+          </div>
+        </div>
+
+        <div className="max-w-2xl mx-auto px-4 pb-12 pt-4 space-y-4">
+          {/* Welcome card */}
+          <div className="rounded-2xl p-5 relative overflow-hidden" style={{ background: '#2A2A2A' }}>
+            <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full" style={{ background: 'rgba(192,39,45,0.15)' }} />
+            <div className="absolute -bottom-4 -left-4 w-16 h-16 rounded-full" style={{ background: 'rgba(255,255,255,0.03)' }} />
+            <div className="relative">
+              <div className="inline-flex items-center gap-1.5 border border-white/20 rounded-full px-3 py-1 text-white/60 text-xs tracking-widest uppercase mb-3">
+                <span className="w-1.5 h-1.5 rounded-full bg-red-300" />
+                Komunitas Alumni Tarakanita
+              </div>
+              <h2 className="text-2xl font-black text-white leading-tight mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
+                Satu ikatan,<br />
+                <em style={{ fontStyle: 'italic', color: '#E8857A' }}>seribu koneksi.</em>
+              </h2>
+              <p className="text-xs leading-relaxed mb-4" style={{ color: 'rgba(255,255,255,0.5)' }}>
+                Temukan sesama alumni, dukung usaha UMKM teman, dan perluas jaringanmu.
+              </p>
+              <div className="flex gap-2">
+                <button onClick={goToDirektori}
+                  className="text-white text-xs font-semibold px-4 py-2 rounded-lg transition hover:opacity-90"
+                  style={{ background: '#C0272D' }}>
+                  Cari Alumni
+                </button>
+                <button onClick={() => { setSelectedAlumniId(null); setView('profil') }}
+                  className="text-white text-xs px-4 py-2 rounded-lg border border-white/25 hover:border-white/40 transition">
+                  Lihat Profil
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick stats */}
+          <div className="grid grid-cols-3 gap-2">
+            {[
+              { icon: <Users className="w-4 h-4" />, label: 'Alumni', color: '#C0272D' },
+              { icon: <ShoppingBag className="w-4 h-4" />, label: 'UMKM Aktif', color: '#2A2A2A' },
+              { icon: <MapPin className="w-4 h-4" />, label: 'Kota', color: '#888' },
+            ].map((item, i) => (
+              <div key={i} className="bg-white rounded-2xl p-3.5 border text-center" style={{ borderColor: '#E0DDD8' }}>
+                <div className="w-8 h-8 rounded-xl flex items-center justify-center mx-auto mb-2 text-white" style={{ background: item.color }}>
+                  {item.icon}
+                </div>
+                <div className="text-xs" style={{ color: '#9B9B9B' }}>{item.label}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Fitur unggulan */}
+          <div className="bg-white rounded-2xl p-4 border" style={{ borderColor: '#E0DDD8' }}>
+            <p className="text-xs font-bold uppercase tracking-wider mb-3 flex items-center gap-1.5" style={{ color: '#C0272D' }}>
+              <span className="w-1 h-3.5 rounded-full inline-block" style={{ background: '#C0272D' }} />
+              APA YANG BISA KAMU LAKUKAN
+            </p>
+            <div className="space-y-3">
+              {[
+                {
+                  icon: <Users className="w-4 h-4" />,
+                  title: 'Temukan Alumni',
+                  desc: 'Cari sesama alumni berdasarkan kota, profesi, atau angkatan',
+                  action: goToDirektori,
+                  btnLabel: 'Cari Sekarang',
+                  color: '#C0272D',
+                  href: null,
+                },
+                {
+                  icon: <ShoppingBag className="w-4 h-4" />,
+                  title: 'Dukung UMKM',
+                  desc: 'Temukan dan dukung usaha dari alumni Tarakanita',
+                  action: null,
+                  btnLabel: 'Lihat UMKM',
+                  color: '#2A2A2A',
+                  href: '/umkm',
+                },
+                {
+                  icon: <Handshake className="w-4 h-4" />,
+                  title: 'Buka Kolaborasi',
+                  desc: 'Temukan alumni yang terbuka untuk berkolaborasi',
+                  action: goToDirektori,
+                  btnLabel: 'Jelajahi',
+                  color: '#888',
+                  href: null,
+                },
+              ].map((item, i) => (
+                <div key={i} className="flex items-center gap-3 p-3 rounded-xl" style={{ background: '#FAFAFA', border: '1px solid #E0DDD8' }}>
+                  <div className="w-9 h-9 rounded-xl flex items-center justify-center text-white flex-shrink-0" style={{ background: item.color }}>
+                    {item.icon}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-xs font-bold mb-0.5" style={{ color: '#1A1A1A' }}>{item.title}</div>
+                    <div className="text-xs" style={{ color: '#9B9B9B' }}>{item.desc}</div>
+                  </div>
+                  {item.href ? (
+                    <Link href={item.href}
+                      className="text-xs font-semibold px-3 py-1.5 rounded-lg flex-shrink-0 transition hover:opacity-80"
+                      style={{ background: item.color, color: 'white' }}>
+                      {item.btnLabel}
+                    </Link>
+                  ) : (
+                    <button onClick={item.action!}
+                      className="text-xs font-semibold px-3 py-1.5 rounded-lg flex-shrink-0 transition hover:opacity-80"
+                      style={{ background: item.color, color: 'white' }}>
+                      {item.btnLabel}
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Alumni featured */}
+          <div className="bg-white rounded-2xl p-4 border" style={{ borderColor: '#E0DDD8' }}>
+            <p className="text-xs font-bold uppercase tracking-wider mb-3 flex items-center gap-1.5" style={{ color: '#C0272D' }}>
+              <span className="w-1 h-3.5 rounded-full inline-block" style={{ background: '#C0272D' }} />
+              ALUMNI FEATURED
+            </p>
+            <button onClick={() => { setSelectedAlumniId(null); setView('profil') }}
+              className="w-full flex items-center gap-3 p-3 rounded-xl transition hover:opacity-90"
+              style={{ background: '#2A2A2A' }}>
+              <div className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0"
+                style={{ background: '#C0272D' }}>
+                {defaultAlumni.foto_url
+                  ? <img src={defaultAlumni.foto_url} alt="" className="w-full h-full object-cover rounded-full" />
+                  : getInits(defaultAlumni.nama_lengkap)}
+              </div>
+              <div className="flex-1 min-w-0 text-left">
+                <div className="text-sm font-bold text-white truncate">{defaultAlumni.nama_lengkap}</div>
+                <div className="text-xs" style={{ color: 'rgba(255,255,255,0.5)' }}>
+                  {defaultAlumni.jabatan || defaultAlumni.master_profesi?.nama || '—'}
+                </div>
+              </div>
+              <ChevronRight className="w-4 h-4 flex-shrink-0" style={{ color: 'rgba(255,255,255,0.3)' }} />
+            </button>
+          </div>
+
+          {/* CTA daftar */}
+          <div className="rounded-2xl p-4 text-center" style={{ background: '#C0272D' }}>
+            <Heart className="w-6 h-6 text-white/60 mx-auto mb-2" />
+            <p className="text-sm font-bold text-white mb-1">Punya usaha UMKM?</p>
+            <p className="text-xs mb-3" style={{ color: 'rgba(255,255,255,0.65)' }}>
+              Tampil di spotlight minggu depan — gratis untuk alumni.
+            </p>
+            <Link href="/daftar"
+              className="inline-block text-xs font-bold px-5 py-2 rounded-lg transition hover:opacity-90"
+              style={{ background: 'white', color: '#C0272D' }}>
+              Daftarkan Sekarang
+            </Link>
+          </div>
+        </div>
+      </>
+    )
+  }
+
+  /* ══════════ VIEW: DIREKTORI ══════════ */
+  if (view === 'direktori') {
+    return <DirektoriView onSelectAlumni={selectAlumni} onBack={goToBeranda} />
+  }
+
+  /* ══════════ VIEW: PROFIL ══════════ */
+  if (loadingAlumni && selectedAlumniId) {
+    return (
+      <div className="max-w-2xl mx-auto px-4 pt-6 space-y-3">
+        <div className="h-5 w-52 rounded-full bg-gray-200 animate-pulse" />
+        <div className="h-28 rounded-2xl bg-gray-200 animate-pulse" />
+        <div className="h-44 rounded-2xl bg-gray-200 animate-pulse" />
+        <div className="h-36 rounded-2xl bg-gray-200 animate-pulse" />
+      </div>
+    )
+  }
+
+  return (
+    <ProfilView
+      alumni={displayAlumni || defaultAlumni}
+      onBack={goToBeranda}
+    />
   )
 }
