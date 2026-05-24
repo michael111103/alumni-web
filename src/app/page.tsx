@@ -282,18 +282,8 @@ export default async function HomePage() {
               const hasUMKM = alumni.umkm && alumni.umkm.length > 0
               return (
                 <Link key={alumni.id} href={`/alumni/${alumni.id}`}>
-                  <div className="border rounded-xl p-3.5 cursor-pointer transition-all hover:border-red-400"
-                    style={{ borderColor: '#E0DDD8' }}
-                    onMouseEnter={e => {
-                      const el = e.currentTarget as HTMLDivElement
-                      el.style.borderColor = '#C0272D'
-                      el.style.background = '#F9ECEC'
-                    }}
-                    onMouseLeave={e => {
-                      const el = e.currentTarget as HTMLDivElement
-                      el.style.borderColor = '#E0DDD8'
-                      el.style.background = 'transparent'
-                    }}>
+                  <div className="border rounded-xl p-3.5 cursor-pointer transition-all hover:border-red-600 hover:bg-red-50"
+                    style={{ borderColor: '#E0DDD8' }}>
                     <div className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-semibold mb-2 ${color.bg} ${color.text}`}>
                       {alumni.foto_url
                         ? <img src={alumni.foto_url} alt="" className="w-full h-full object-cover rounded-full" />
