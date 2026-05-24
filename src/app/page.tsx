@@ -2,9 +2,9 @@ import Link from 'next/link'
 import { Suspense } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import Navbar from '@/components/public/Navbar'
-import HeroSearch from '@/components/public/HeroSearch'
+import HomeSearchWrapper from '@/components/public/HomeSearchWrapper'
 import FeaturedAlumniSection from '@/components/public/FeaturedAlumniSection'
-import { ShoppingBag, Image as ImageIcon, MessageCircle, Instagram, ChevronRight } from 'lucide-react'
+import { ShoppingBag, Image as ImageIcon, ChevronRight } from 'lucide-react'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -14,7 +14,6 @@ export const metadata: Metadata = {
 
 export const revalidate = 1800
 
-// ── helpers ──
 function getInitials(name: string) {
   return name.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase()
 }
@@ -28,7 +27,6 @@ const AVATAR_COLORS = [
   { bg: '#C0272D', text: '#fff' },
 ]
 
-// ── data fetchers ──
 async function getStats() {
   try {
     const supabase = createClient()
@@ -80,7 +78,6 @@ async function getFeaturedAlumni() {
   } catch { return null }
 }
 
-// ── page ──
 export default async function HomePage() {
   const [stats, recentAlumni, featuredAlumni] = await Promise.all([
     getStats(), getRecentAlumni(), getFeaturedAlumni(),
@@ -171,37 +168,13 @@ export default async function HomePage() {
         <div className="h-8 rounded-t-[32px]" style={{ background: '#FAF8F4' }} />
       </section>
 
-      {/* ── SEARCH ── */}
+      {/* ── SEARCH — tanpa filter chips ── */}
       <section className="bg-white border-b" style={{ borderColor: '#E0DDD8' }}>
         <div className="max-w-5xl mx-auto px-6 py-6">
           <p className="text-xs font-semibold tracking-widest uppercase mb-3" style={{ color: '#6B6B6B' }}>
             Cari Alumni atau Usaha
           </p>
-          <HeroSearch dark />
-          <div className="flex gap-2 flex-wrap mt-3">
-            {['Semua', 'Jakarta', 'Surabaya', 'Bandung'].map((chip, i) => (
-              <Link key={chip}
-                href={i === 0 ? '/alumni' : `/alumni?search=${chip}`}
-                className="text-xs px-3 py-1.5 rounded-full border transition"
-                style={{
-                  borderColor: i === 0 ? '#2A2A2A' : '#E0DDD8',
-                  background: i === 0 ? '#2A2A2A' : 'transparent',
-                  color: i === 0 ? 'white' : '#6B6B6B',
-                }}>
-                {chip}
-              </Link>
-            ))}
-            <Link href="/alumni?filter=umkm"
-              className="text-xs px-3 py-1.5 rounded-full border transition"
-              style={{ borderColor: '#EDCACA', background: '#F9ECEC', color: '#C0272D' }}>
-              Punya UMKM
-            </Link>
-            <Link href="/alumni?filter=kolaborasi"
-              className="text-xs px-3 py-1.5 rounded-full border transition"
-              style={{ borderColor: '#E0DDD8', color: '#6B6B6B' }}>
-              Buka kolaborasi
-            </Link>
-          </div>
+          <HomeSearchWrapper />
         </div>
       </section>
 
@@ -363,14 +336,13 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── PROFIL ALUMNI FEATURED — interaktif via client component ── */}
+      {/* ── FEATURED ALUMNI SECTION ── */}
       {featuredAlumni && <FeaturedAlumniSection alumni={featuredAlumni} />}
 
     </main>
   )
 }
 
-// ── Showcase split ──
 async function ShowcaseSplitSection() {
   const supabase = createClient()
   let showcases: any[] = []
