@@ -6,6 +6,7 @@ import HomeSearchWrapper from '@/components/public/HomeSearchWrapper'
 import FeaturedAlumniSection from '@/components/public/FeaturedAlumniSection'
 import { ShoppingBag, Image as ImageIcon, ChevronRight } from 'lucide-react'
 import type { Metadata } from 'next'
+import MomenBersamaSection from '@/components/public/MomenBersamaSection'
 
 export const metadata: Metadata = {
   title: 'TarkiPages — Direktori & UMKM Alumni',
