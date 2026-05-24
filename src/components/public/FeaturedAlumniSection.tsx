@@ -7,7 +7,7 @@ import {
   Handshake, Search, SlidersHorizontal, X, ChevronDown,
   Users, Heart,
 } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAlumni, useAlumniById, useMasterKota, useMasterProfesi } from '@/hooks/useAlumni'
 import Pagination from '@/components/public/Pagination'
 import type { AlumniFilter } from '@/types'
@@ -24,12 +24,10 @@ const AVATAR_COLORS = [
 type View = 'beranda' | 'direktori' | 'profil'
 
 // ── Sub-component: Profil Alumni ──
-function ProfilView({
-  alumni,
-  onBack,
-}: {
+function ProfilView({ alumni, onBackBeranda, onBackDirektori }: {
   alumni: any
-  onBack: () => void
+  onBackBeranda: () => void
+  onBackDirektori: () => void
 }) {
   const [activeTab, setActiveTab] = useState<'profil' | 'umkm'>('profil')
   const [selectedUMKM, setSelectedUMKM] = useState(0)
@@ -215,13 +213,13 @@ function ProfilView({
       <div className="bg-white border-b" style={{ borderColor: '#F0EDEA' }}>
         <div className="max-w-2xl mx-auto px-4 py-2.5">
           <div className="flex items-center gap-1 text-xs">
-            <button onClick={() => onBack()}
+            <button onClick={onBackBeranda}
               className="px-2 py-1 rounded-lg hover:bg-gray-100 transition font-medium"
               style={{ color: '#9B9B9B' }}>
               Beranda
             </button>
             <span style={{ color: '#D0CCC8' }}>/</span>
-            <button onClick={() => onBack()}
+            <button onClick={onBackDirektori}
               className="px-2 py-1 rounded-lg hover:bg-gray-100 transition font-medium"
               style={{ color: '#9B9B9B' }}>
               Direktori
@@ -465,10 +463,7 @@ function ProfilView({
 }
 
 // ── Sub-component: Direktori ──
-function DirektoriView({
-  onSelectAlumni,
-  onBack,
-}: {
+function DirektoriView({ onSelectAlumni, onBack }: {
   onSelectAlumni: (id: string) => void
   onBack: () => void
 }) {
@@ -502,7 +497,6 @@ function DirektoriView({
 
   return (
     <>
-      {/* TABS */}
       <div className="bg-white border-b" style={{ borderColor: '#E0DDD8' }}>
         <div className="max-w-2xl mx-auto flex">
           <div className="flex-1 py-3.5 text-sm font-semibold text-center" style={{ color: '#6B6B6B' }}>Profil Alumni</div>
@@ -510,7 +504,6 @@ function DirektoriView({
         </div>
       </div>
 
-      {/* BREADCRUMB */}
       <div className="bg-white border-b" style={{ borderColor: '#F0EDEA' }}>
         <div className="max-w-2xl mx-auto px-4 py-2.5">
           <div className="flex items-center gap-1 text-xs">
@@ -525,7 +518,6 @@ function DirektoriView({
         </div>
       </div>
 
-      {/* HEADER */}
       <div style={{ background: '#2A2A2A' }}>
         <div className="max-w-2xl mx-auto px-4 pt-5 pb-7">
           <div className="flex items-center gap-3">
@@ -546,7 +538,6 @@ function DirektoriView({
         <div className="h-6 rounded-t-[28px]" style={{ background: '#FAF8F4' }} />
       </div>
 
-      {/* CONTENT */}
       <div className="max-w-2xl mx-auto px-4 pb-12" style={{ marginTop: '-4px' }}>
         <form onSubmit={handleSearch} className="flex gap-2 mb-3">
           <div className="flex-1 relative">
@@ -686,8 +677,7 @@ function DirektoriView({
                 const avatarColor = AVATAR_COLORS[idx % AVATAR_COLORS.length]
                 const hasUMKMFlag = a.umkm && a.umkm.length > 0
                 return (
-                  <button key={a.id}
-                    onClick={() => onSelectAlumni(a.id)}
+                  <button key={a.id} onClick={() => onSelectAlumni(a.id)}
                     className="bg-white border rounded-xl p-3.5 cursor-pointer transition-all hover:border-red-400 hover:shadow-sm text-left w-full"
                     style={{ borderColor: '#E0DDD8' }}>
                     <div className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold mb-2.5 overflow-hidden"
@@ -731,33 +721,33 @@ function DirektoriView({
 
 // ── MAIN COMPONENT ──
 export default function FeaturedAlumniSection({ alumni: defaultAlumni }: { alumni: any }) {
-  const [view, setView] = useState<View>('beranda') // ← default BERANDA
+  const [view, setView] = useState<View>('beranda')
   const [selectedAlumniId, setSelectedAlumniId] = useState<string | null>(null)
 
-  // Fetch alumni yang diklik dari direktori
   const { data: fetchedAlumni, isLoading: loadingAlumni } = useAlumniById(selectedAlumniId || '')
-
-  // Alumni yang ditampilkan: kalau dari direktori pakai fetchedAlumni, kalau dari beranda pakai defaultAlumni
   const displayAlumni = selectedAlumniId ? fetchedAlumni : defaultAlumni
 
-  const goToBeranda = () => {
-    setView('beranda')
-    setSelectedAlumniId(null)
-  }
+  // ── Listen event dari HomeSearchWrapper ──
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const id = (e as CustomEvent).detail?.id
+      if (id) {
+        setSelectedAlumniId(id)
+        setView('profil')
+      }
+    }
+    window.addEventListener('alumni-select', handler)
+    return () => window.removeEventListener('alumni-select', handler)
+  }, [])
 
-  const goToDirektori = () => {
-    setView('direktori')
-  }
-
-  const selectAlumni = (id: string) => {
-    setSelectedAlumniId(id)
-    setView('profil')
-  }
+  const goToBeranda = () => { setView('beranda'); setSelectedAlumniId(null) }
+  const goToDirektori = () => setView('direktori')
+  const selectAlumni = (id: string) => { setSelectedAlumniId(id); setView('profil') }
 
   /* ══════════ VIEW: BERANDA ══════════ */
   if (view === 'beranda') {
     return (
-      <>
+      <div id="featured-alumni-section">
         <div className="bg-white border-b" style={{ borderColor: '#E0DDD8' }}>
           <div className="max-w-2xl mx-auto flex">
             <div className="flex-1 py-3.5 text-sm font-semibold text-center relative" style={{ color: '#C0272D' }}>
@@ -805,7 +795,7 @@ export default function FeaturedAlumniSection({ alumni: defaultAlumni }: { alumn
             </div>
           </div>
 
-          {/* Quick stats */}
+          {/* Stats */}
           <div className="grid grid-cols-3 gap-2">
             {[
               { icon: <Users className="w-4 h-4" />, label: 'Alumni', color: '#C0272D' },
@@ -821,7 +811,7 @@ export default function FeaturedAlumniSection({ alumni: defaultAlumni }: { alumn
             ))}
           </div>
 
-          {/* Fitur unggulan */}
+          {/* Fitur */}
           <div className="bg-white rounded-2xl p-4 border" style={{ borderColor: '#E0DDD8' }}>
             <p className="text-xs font-bold uppercase tracking-wider mb-3 flex items-center gap-1.5" style={{ color: '#C0272D' }}>
               <span className="w-1 h-3.5 rounded-full inline-block" style={{ background: '#C0272D' }} />
@@ -829,33 +819,9 @@ export default function FeaturedAlumniSection({ alumni: defaultAlumni }: { alumn
             </p>
             <div className="space-y-3">
               {[
-                {
-                  icon: <Users className="w-4 h-4" />,
-                  title: 'Temukan Alumni',
-                  desc: 'Cari sesama alumni berdasarkan kota, profesi, atau angkatan',
-                  action: goToDirektori,
-                  btnLabel: 'Cari Sekarang',
-                  color: '#C0272D',
-                  href: null,
-                },
-                {
-                  icon: <ShoppingBag className="w-4 h-4" />,
-                  title: 'Dukung UMKM',
-                  desc: 'Temukan dan dukung usaha dari alumni Tarakanita',
-                  action: null,
-                  btnLabel: 'Lihat UMKM',
-                  color: '#2A2A2A',
-                  href: '/umkm',
-                },
-                {
-                  icon: <Handshake className="w-4 h-4" />,
-                  title: 'Buka Kolaborasi',
-                  desc: 'Temukan alumni yang terbuka untuk berkolaborasi',
-                  action: goToDirektori,
-                  btnLabel: 'Jelajahi',
-                  color: '#888',
-                  href: null,
-                },
+                { icon: <Users className="w-4 h-4" />, title: 'Temukan Alumni', desc: 'Cari sesama alumni berdasarkan kota, profesi, atau angkatan', action: goToDirektori, btnLabel: 'Cari Sekarang', color: '#C0272D', href: null },
+                { icon: <ShoppingBag className="w-4 h-4" />, title: 'Dukung UMKM', desc: 'Temukan dan dukung usaha dari alumni Tarakanita', action: null, btnLabel: 'Lihat UMKM', color: '#2A2A2A', href: '/umkm' },
+                { icon: <Handshake className="w-4 h-4" />, title: 'Buka Kolaborasi', desc: 'Temukan alumni yang terbuka untuk berkolaborasi', action: goToDirektori, btnLabel: 'Jelajahi', color: '#888', href: null },
               ].map((item, i) => (
                 <div key={i} className="flex items-center gap-3 p-3 rounded-xl" style={{ background: '#FAFAFA', border: '1px solid #E0DDD8' }}>
                   <div className="w-9 h-9 rounded-xl flex items-center justify-center text-white flex-shrink-0" style={{ background: item.color }}>
@@ -908,7 +874,7 @@ export default function FeaturedAlumniSection({ alumni: defaultAlumni }: { alumn
             </button>
           </div>
 
-          {/* CTA daftar */}
+          {/* CTA */}
           <div className="rounded-2xl p-4 text-center" style={{ background: '#C0272D' }}>
             <Heart className="w-6 h-6 text-white/60 mx-auto mb-2" />
             <p className="text-sm font-bold text-white mb-1">Punya usaha UMKM?</p>
@@ -922,19 +888,23 @@ export default function FeaturedAlumniSection({ alumni: defaultAlumni }: { alumn
             </Link>
           </div>
         </div>
-      </>
+      </div>
     )
   }
 
   /* ══════════ VIEW: DIREKTORI ══════════ */
   if (view === 'direktori') {
-    return <DirektoriView onSelectAlumni={selectAlumni} onBack={goToBeranda} />
+    return (
+      <div id="featured-alumni-section">
+        <DirektoriView onSelectAlumni={selectAlumni} onBack={goToBeranda} />
+      </div>
+    )
   }
 
   /* ══════════ VIEW: PROFIL ══════════ */
   if (loadingAlumni && selectedAlumniId) {
     return (
-      <div className="max-w-2xl mx-auto px-4 pt-6 space-y-3">
+      <div id="featured-alumni-section" className="max-w-2xl mx-auto px-4 pt-6 space-y-3">
         <div className="h-5 w-52 rounded-full bg-gray-200 animate-pulse" />
         <div className="h-28 rounded-2xl bg-gray-200 animate-pulse" />
         <div className="h-44 rounded-2xl bg-gray-200 animate-pulse" />
@@ -944,9 +914,12 @@ export default function FeaturedAlumniSection({ alumni: defaultAlumni }: { alumn
   }
 
   return (
-    <ProfilView
-      alumni={displayAlumni || defaultAlumni}
-      onBack={goToBeranda}
-    />
+    <div id="featured-alumni-section">
+      <ProfilView
+        alumni={displayAlumni || defaultAlumni}
+        onBackBeranda={goToBeranda}
+        onBackDirektori={goToDirektori}
+      />
+    </div>
   )
 }
