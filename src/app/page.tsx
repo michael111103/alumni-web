@@ -78,6 +78,28 @@ async function getFeaturedAlumni() {
   } catch { return null }
 }
 
+function getWeekLabel(): string {
+  const now = new Date()
+  // Cari hari Senin minggu ini
+  const day = now.getDay() // 0=Sun, 1=Mon, ..., 6=Sat
+  const diffToMonday = day === 0 ? -6 : 1 - day
+  const monday = new Date(now)
+  monday.setDate(now.getDate() + diffToMonday)
+  monday.setHours(0, 0, 0, 0)
+
+  // Minggu berakhir Minggu
+  const sunday = new Date(monday)
+  sunday.setDate(monday.getDate() + 6)
+
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des']
+
+  const startStr = `${monday.getDate()} ${months[monday.getMonth()]}`
+  const endStr = `${sunday.getDate()} ${months[sunday.getMonth()]} ${sunday.getFullYear()}`
+
+  return `Minggu Ini (${startStr} - ${endStr})`
+}
+
+
 export default async function HomePage() {
   const [stats, recentAlumni, featuredAlumni] = await Promise.all([
     getStats(), getRecentAlumni(), getFeaturedAlumni(),
@@ -183,7 +205,7 @@ export default async function HomePage() {
         <div className="max-w-5xl mx-auto px-6 py-2.5 flex items-center justify-between">
           <div className="flex items-center gap-2 text-white text-xs font-semibold">
             <span className="w-1.5 h-1.5 rounded-full bg-white/60" />
-            UMKM Pilihan Minggu Ini — 19–25 Mei 2025
+            UMKM Pilihan {getWeekLabel()}
           </div>
           <span className="text-white/65 text-xs">Diperbarui setiap Senin</span>
         </div>
