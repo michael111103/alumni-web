@@ -1,6 +1,14 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import { Providers } from '@/components/providers'
+import { Plus_Jakarta_Sans, DM_Sans, Playfair_Display } from 'next/font/google'
+
+const playfair = Playfair_Display({
+  subsets: ['latin'],
+  weight: ['700', '900'],
+  style: ['normal', 'italic'],
+  variable: '--font-playfair',
+})
 
 export const metadata: Metadata = {
   title: 'TarkiPages — Direktori & UMKM Alumni',
