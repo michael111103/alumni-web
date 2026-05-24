@@ -9,7 +9,7 @@ interface SearchResult {
   nama_lengkap: string
   jabatan?: string
   angkatan?: number
-  type: 'alumni'
+  type?: 'alumni'
   umkm?: { nama_usaha: string }[]
 }
 
