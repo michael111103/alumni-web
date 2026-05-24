@@ -382,7 +382,7 @@ export default async function HomePage() {
       </section>
 
       {/* ── FEATURED ALUMNI SECTION ── */}
-      {featuredAlumni && <FeaturedAlumniSection alumni={featuredAlumni} />}
+      {displayAlumni && <FeaturedAlumniSection alumni={displayAlumni} />}
 
     </main>
   )
