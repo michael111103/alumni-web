@@ -64,11 +64,24 @@ export default function AdminFeaturedPage() {
   const setAsFeatured = async (alumniId: string) => {
     setSavingId(alumniId)
     try {
-      const { error: updateError } = await supabase.from('featured_alumni').update({ is_active: false }).eq('is_active', true)
-      if (updateError) console.error('Update error:', updateError)
-      const { error: insertError } = await supabase.from('featured_alumni').insert({ alumni_id: alumniId, is_active: true })
-      if (insertError) console.error('Insert error:', insertError)
-      await fetchFeatured()
+      await supabase.from('featured_alumni').update({ is_active: false }).eq('is_active', true)
+      const { error: insertError } = await supabase
+        .from('featured_alumni')
+        .insert({ alumni_id: alumniId, is_active: true })
+      if (insertError) {
+        console.error('Insert error:', insertError)
+        return
+      }
+      // Langsung ambil data yang baru diinsert untuk update UI
+      const { data: newRow } = await supabase
+        .from('featured_alumni')
+        .select('*, alumni(id, nama_lengkap, angkatan, jabatan, foto_url, master_profesi(nama), umkm(id))')
+        .eq('alumni_id', alumniId)
+        .eq('is_active', true)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single()
+      if (newRow) setFeatured([newRow as any])
     } finally {
       setSavingId(null)
     }
@@ -77,6 +90,7 @@ export default function AdminFeaturedPage() {
   const removeFeatured = async (id: string) => {
     if (!confirm('Hapus alumni ini dari featured?')) return
     await supabase.from('featured_alumni').update({ is_active: false }).eq('id', id)
+    setFeatured([])
     await fetchFeatured()
   }
 
