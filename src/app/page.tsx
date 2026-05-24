@@ -54,6 +54,45 @@ async function getRecentAlumni() {
   } catch { return [] }
 }
 
+async function getMomenBersama() {
+  try {
+    const supabase = createClient()
+    const { data } = await supabase
+      .from('galeri_momen')
+      .select('*')
+      .order('urutan', { ascending: true })
+      .order('created_at', { ascending: false })
+    return data || []
+  } catch { return [] }
+}
+
+async function getFeaturedAlumniFromDB() {
+  try {
+    const supabase = createClient()
+    const { data } = await supabase
+      .from('featured_alumni')
+      .select(`
+        alumni_id,
+        alumni(
+          *,
+          master_kota(id, nama),
+          master_profesi(id, nama),
+          umkm(
+            *,
+            master_kategori_usaha(id, nama),
+            master_kota(id, nama),
+            umkm_benefits(*, master_benefit(id, nama))
+          )
+        )
+      `)
+      .eq('is_active', true)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single()
+    return (data as any)?.alumni || null
+  } catch { return null }
+}
+
 async function getFeaturedAlumni() {
   try {
     const supabase = createClient()
@@ -101,9 +140,11 @@ function getWeekLabel(): string {
 
 
 export default async function HomePage() {
-  const [stats, recentAlumni, featuredAlumni] = await Promise.all([
-    getStats(), getRecentAlumni(), getFeaturedAlumni(),
+  const [stats, recentAlumni, featuredAlumni, momenFotos] = await Promise.all([
+    getStats(), getRecentAlumni(), getFeaturedAlumniFromDB(), getMomenBersama(),
   ])
+  // ... fallback ke alumni terbaru kalau featured kosong
+  const displayAlumni = featuredAlumni || await getFeaturedAlumni()
 
   return (
     <main className="min-h-screen" style={{ background: '#FAF8F4', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
@@ -244,34 +285,15 @@ export default async function HomePage() {
             <h2 className="font-bold text-xl" style={{ fontFamily: "'Playfair Display', serif", color: '#1A1A1A' }}>
               Momen Bersama
             </h2>
-            <span className="text-xs border-b pb-0.5 cursor-pointer" style={{ color: '#6B6B6B', borderColor: '#E0DDD8' }}>
+            <Link href="/galeri" className="text-xs border-b pb-0.5 cursor-pointer transition hover:opacity-70"
+              style={{ color: '#6B6B6B', borderColor: '#E0DDD8' }}>
               Lihat galeri →
-            </span>
+            </Link>
           </div>
-          <div className="grid grid-cols-3 gap-2">
-            {[
-              { label: 'Reuni 2024', bg: '#DDD8D0' },
-              { label: 'Seminar',    bg: '#E0CBCB' },
-              { label: 'Workshop',   bg: '#DCDCDA' },
-            ].map(item => (
-              <div key={item.label}
-                className="relative h-28 rounded-xl flex items-center justify-center overflow-hidden cursor-pointer hover:opacity-90 transition"
-                style={{ background: item.bg }}>
-                <ImageIcon className="w-6 h-6 opacity-25" style={{ color: '#888' }} />
-                <div className="absolute bottom-2 left-2.5">
-                  <span className="text-white/85 text-xs font-medium px-2 py-0.5 rounded-full"
-                    style={{ background: 'rgba(0,0,0,0.35)' }}>
-                    {item.label}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-          <p className="text-center text-xs mt-2" style={{ color: '#6B6B6B' }}>
-            Placeholder — akan diisi foto kegiatan alumni yang sebenarnya
-          </p>
+          <MomenBersamaSection fotos={momenFotos} />
         </div>
       </section>
+  
 
       {/* ── DIREKTORI ALUMNI ── */}
       <section className="bg-white border-t border-b" style={{ borderColor: '#E0DDD8' }}>
