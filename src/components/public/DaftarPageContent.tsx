@@ -1,7 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { useMasterKategoriUsaha, useMasterBenefit } from '@/hooks/useAlumni'
+import { useMasterKategoriUsaha, useMasterBenefit, useMasterProfesi } from '@/hooks/useAlumni'
 import { uploadFotoAlumni, uploadFotoUMKM, uploadLogo, validateImageFile } from '@/lib/upload'
 import Navbar from '@/components/public/Navbar'
 import Link from 'next/link'
@@ -14,21 +14,6 @@ import {
 } from 'lucide-react'
 
 const STEPS = ['Identitas', 'Profesi', 'UMKM', 'Persetujuan']
-
-const PROFESI_LIST = [
-  'Akuntan', 'Ahli Gizi', 'Apoteker', 'Arsitek', 'Atlet',
-  'Auditor', 'Bankir', 'Broker Properti', 'Chef / Koki', 'Desainer Grafis',
-  'Desainer Interior', 'Desainer Produk', 'Dokter', 'Dokter Gigi', 'Dokter Hewan',
-  'Event Organizer', 'Financial Advisor', 'Fotografer', 'Frontend Developer', 'Full Stack Developer',
-  'Game Developer', 'Guru / Pengajar', 'Human Resources (HR)', 'Jurnalis', 'Konsultan',
-  'Konsultan Hukum', 'Konsultan Keuangan', 'Konsultan Manajemen', 'Konten Kreator', 'Lawyer / Pengacara',
-  'Logistik & Supply Chain', 'Manajer Pemasaran', 'Manajer Proyek', 'Marketing', 'Model',
-  'Music Producer', 'Notaris', 'Pegawai Negeri Sipil (PNS)', 'Peneliti', 'Penulis',
-  'Perawat', 'Pilot', 'Product Manager', 'Programmer', 'Psikolog',
-  'Public Relations (PR)', 'Quality Assurance (QA)', 'Sales', 'SEO Specialist', 'Seniman',
-  'Social Media Manager', 'Software Engineer', 'Startup Founder', 'Teknisi', 'TNI / Polisi',
-  'UI/UX Designer', 'Video Editor', 'Videografer', 'Wiraswasta / Pengusaha', 'Lainnya',
-].sort()
 
 interface UMKMForm {
   namaUsaha: string
@@ -86,6 +71,7 @@ export default function DaftarPageContent() {
 
   const { data: kategoris } = useMasterKategoriUsaha()
   const { data: benefits } = useMasterBenefit()
+  const { data: profesiList } = useMasterProfesi()
   const supabase = createClient()
 
   const kotaDomisiliList = provinsiDomisili ? getKotaByProvinsi(provinsiDomisili) : []
@@ -351,7 +337,7 @@ export default function DaftarPageContent() {
           </div>
         )}
 
-        {/* STEP 1: PROFESI — dengan dropdown lengkap + label optional */}
+        {/* STEP 1: PROFESI — dropdown dari Supabase */}
         {step === 1 && (
           <div className="space-y-5">
             <SectionCard title="B. Profil Profesi (Opsional)" icon={<Briefcase className="w-4 h-4" />}>
@@ -364,7 +350,9 @@ export default function DaftarPageContent() {
                       className="w-full border rounded-xl pl-9 pr-3 py-2.5 text-sm focus:outline-none transition appearance-none"
                       style={{ borderColor: '#E0DDD8', background: 'white', color: profesi ? '#1A1A1A' : '#9B9B9B' }}>
                       <option value="">Pilih profesi...</option>
-                      {PROFESI_LIST.map(p => <option key={p} value={p}>{p}</option>)}
+                      {profesiList?.map(p => (
+                        <option key={p.id} value={p.nama}>{p.nama}</option>
+                      ))}
                     </select>
                   </div>
                 </div>
@@ -520,7 +508,7 @@ export default function DaftarPageContent() {
   )
 }
 
-// ── UMKM Form Block (per UMKM) ──
+// ── UMKM Form Block ──
 function UMKMFormBlock({ idx, u, kategoris, benefits, onUpdate, onRemove, onFotoProduk, onLogo, onToggleBenefit }: {
   idx: number
   u: UMKMForm
@@ -536,11 +524,8 @@ function UMKMFormBlock({ idx, u, kategoris, benefits, onUpdate, onRemove, onFoto
 
   return (
     <div className="border rounded-2xl p-4 space-y-4 relative" style={{ borderColor: '#E0DDD8', background: '#FAFAFA' }}>
-      {/* Header UMKM ke-N */}
       <div className="flex items-center justify-between">
-        <span className="text-sm font-bold" style={{ color: '#C0272D' }}>
-          Usaha {idx + 1}
-        </span>
+        <span className="text-sm font-bold" style={{ color: '#C0272D' }}>Usaha {idx + 1}</span>
         {onRemove && (
           <button type="button" onClick={onRemove}
             className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border transition hover:opacity-80"
@@ -575,7 +560,6 @@ function UMKMFormBlock({ idx, u, kategoris, benefits, onUpdate, onRemove, onFoto
           style={{ borderColor: '#E0DDD8', background: 'white', color: '#1A1A1A' }} />
       </div>
 
-      {/* Skala Usaha — teks diubah sesuai permintaan client */}
       <div>
         <Label>Skala Usaha</Label>
         <div className="grid grid-cols-2 gap-2">
@@ -664,7 +648,6 @@ function UMKMFormBlock({ idx, u, kategoris, benefits, onUpdate, onRemove, onFoto
         </div>
       </div>
 
-      {/* Benefit */}
       {benefits?.length > 0 && (
         <div>
           <Label>Benefit untuk Sesama Alumni</Label>
@@ -690,7 +673,6 @@ function UMKMFormBlock({ idx, u, kategoris, benefits, onUpdate, onRemove, onFoto
         </div>
       )}
 
-      {/* Foto Produk */}
       <div>
         <Label>Foto Produk (1-3 foto)</Label>
         <p className="text-xs mb-2" style={{ color: '#9B9B9B' }}>Format JPG/PNG, maks. 5MB</p>
@@ -710,7 +692,6 @@ function UMKMFormBlock({ idx, u, kategoris, benefits, onUpdate, onRemove, onFoto
         </div>
       </div>
 
-      {/* Logo */}
       <div>
         <Label>Logo Usaha (opsional)</Label>
         <div className="flex items-center gap-4">
