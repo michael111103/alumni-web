@@ -41,7 +41,7 @@ export default function Navbar({ dark }: { dark?: boolean } = {}) {
         <Link href="/daftar"
           className="text-white text-xs font-semibold px-3.5 py-1.5 rounded-md transition hover:opacity-90"
           style={{ background: '#C0272D' }}>
-          Daftar UMKM
+          Daftar Alumni
         </Link>
       </div>
 
